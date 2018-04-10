@@ -7,6 +7,8 @@ import com.prestigeww.hermes.R;
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
 
+    private String mansNotHot;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
