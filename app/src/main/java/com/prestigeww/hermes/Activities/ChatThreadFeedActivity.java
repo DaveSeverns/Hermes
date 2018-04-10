@@ -10,6 +10,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private String mansNotHot;
     private String BigShaq = "Mans Never Hot";
 
+    public String getBigShaq() {
+        return BigShaq;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
