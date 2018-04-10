@@ -6,7 +6,7 @@ import com.prestigeww.hermes.R;
 
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
-
+//i wumbo you wumbo he she they wumbo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
