@@ -38,6 +38,7 @@ public class FirebaseProxy extends HermesUtiltity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (String id:chatIds){
+                        //TODO finish project
                         ChatThread tempThread = (ChatThread)dataSnapshot.child(id).getValue();
                         usersThreads.add(tempThread);
                     }
