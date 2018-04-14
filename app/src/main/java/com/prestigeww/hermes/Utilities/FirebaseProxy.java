@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.prestigeww.hermes.Model.ChatThread;
 
@@ -21,20 +22,20 @@ import java.util.ArrayList;
 public class FirebaseProxy extends HermesUtiltity {
     public FirebaseApp firebaseApp;
     public FirebaseDatabase mFirebaseDatabase;
-    public DatabaseReference mUserDatabase;
-    public DatabaseReference mChatThreadDatabase;
+    public DatabaseReference mDatabaseReference;
+
     public StorageReference mHermesStorage;
     public FirebaseProxy(){
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mUserDatabase = mFirebaseDatabase.getReference().child("Users");
-        mChatThreadDatabase = mFirebaseDatabase.getReference().child("ChatThreads");
+        mDatabaseReference = mFirebaseDatabase.getReference();
+        mHermesStorage = FirebaseStorage.getInstance().getReference();
     }
 
     public ArrayList<ChatThread> getUsersChatsById(final ArrayList<String> chatIds){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
 
         while(usersThreads.isEmpty()){
-            mChatThreadDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabaseReference.child("ChatThreads").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (String id:chatIds){
@@ -56,8 +57,9 @@ public class FirebaseProxy extends HermesUtiltity {
 
 
     public String addNewThreadToFirebase(ChatThread chatThread){
-        String result = mChatThreadDatabase.push().setValue(chatThread).getResult().toString();
-        return result;
+        String threadKey = mDatabaseReference.push().getKey();
+        mDatabaseReference.child(threadKey).setValue(chatThread);
+        return threadKey;
     }
 
 
