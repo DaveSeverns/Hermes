@@ -10,6 +10,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private String mansNotHot;
     private String BigShaq = "Mans Never Hot";
 
+    //Testing Krati
+
     public String getBigShaq() {
         return BigShaq;
     }
