@@ -17,6 +17,7 @@ import com.prestigeww.hermes.Model.ChatThread;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class FirebaseProxy extends HermesUtiltity {
@@ -38,10 +39,15 @@ public class FirebaseProxy extends HermesUtiltity {
             mDatabaseReference.child("ChatThreads").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot threadSnapShot: dataSnapshot.getChildren()){
-                        for (String id: chatIds){
-                            ChatThread tempThread = threadSnapShot.child(id).getValue(ChatThread.class);
-                            usersThreads.add(tempThread);
+                    for (String id: chatIds){
+                        for (DataSnapshot threadSnapshot: dataSnapshot.getChildren()){
+                            if (threadSnapshot.getKey().equals("-"+id)){
+                                String tempThreadName = (String) threadSnapshot.child("chatName").getValue();
+                                String tempThreadId = (String) threadSnapshot.child("chatId").getValue();
+                                Log.e("Temp Thread toString:", tempThreadName);
+                                ChatThread tempThread = new ChatThread(tempThreadId,tempThreadName);
+                                usersThreads.add(tempThread);
+                            }
                         }
                     }
                 }
@@ -58,7 +64,7 @@ public class FirebaseProxy extends HermesUtiltity {
     }
 
 
-    public String addNewThreadToFirebase(ChatThread chatThread){
+    public String postThreadToFirebase(ChatThread chatThread){
         String threadKey = mDatabaseReference.child("ChatThreads").push().getKey();
         mDatabaseReference.child(threadKey).setValue(chatThread);
         return threadKey;

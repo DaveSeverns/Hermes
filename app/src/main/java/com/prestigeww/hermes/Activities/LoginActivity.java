@@ -19,11 +19,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         FirebaseApp.initializeApp(this);
-        ChatThread thread = new ChatThread();
-        FirebaseProxy proxy = new FirebaseProxy();
-        DatabaseReference ref = proxy.mDatabaseReference.child("ChatThreads");
-        String threadKey = ref.push().getKey();
-        ref.child(threadKey).setValue(thread);
+
 
 
     }

@@ -27,6 +27,22 @@ public class ChatThread implements Serializable {
         messages = new ArrayList<>();
     }
 
+    public ChatThread(String chatId, String chatName ){
+        this.userIds = new ArrayList<>();
+        this.messages = new ArrayList<>();
+        this.chatName = chatName;
+        this.chatId = chatId;
+        this.admin = null;
+    }
+
+    public ChatThread(ChatThread value) {
+        this.chatId = value.chatId;
+        this.admin = value.admin;
+        this.chatName = value.chatName;
+        this.messages = value.messages;
+        this.userIds = value.userIds;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,4 +105,6 @@ public class ChatThread implements Serializable {
     public void setMessages(ArrayList<MessageInChat> messages) {
         this.messages = messages;
     }
+
+
 }

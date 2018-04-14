@@ -18,9 +18,13 @@ import java.util.ArrayList;
 public class FirebaseProxyUnitTest extends TestCase {
     private FirebaseProxy proxy;
     private ChatThread testThread;
+    ArrayList<String> chatIdsTest;
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        chatIdsTest = new ArrayList<String>();
+        chatIdsTest.add("LA4BsMDbmrS_TSfq6WK");
+        chatIdsTest.add("LA4CnonQ7XJrmMnRhmc");
         proxy = new FirebaseProxy();
         testThread = new ChatThread();
     }
@@ -28,15 +32,20 @@ public class FirebaseProxyUnitTest extends TestCase {
     @Test
     public void testShouldReturnNotNullOnAddChatThread(){
 
-        assertNotNull(proxy.addNewThreadToFirebase(testThread));
+        assertNotNull(proxy.postThreadToFirebase(testThread));
     }
 
     @Test
     public void testReadChatThreadTableShouldNotReturnNull(){
-        ArrayList<String> chatIdsTest = new ArrayList<String>();
-        chatIdsTest.add("LA4BsMDbmrS_TSfq6WK");
+
         ArrayList<ChatThread> threadForTest = new ArrayList<>(proxy.getUsersChatsById(chatIdsTest));
 
         assertNotNull(threadForTest.get(0));
+    }
+
+    @Test
+    public void testReadChatThreadShouldReturnNumberOfIds(){
+        ArrayList<ChatThread> threadsForThisTest = new ArrayList<>(proxy.getUsersChatsById(chatIdsTest));
+        assertEquals(2,threadsForThisTest.size());
     }
 }
