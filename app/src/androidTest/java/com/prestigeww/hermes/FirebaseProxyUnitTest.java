@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+
 @RunWith(AndroidJUnit4.class)
 public class FirebaseProxyUnitTest extends TestCase {
     private FirebaseProxy proxy;
@@ -27,5 +29,14 @@ public class FirebaseProxyUnitTest extends TestCase {
     public void testShouldReturnNotNullOnAddChatThread(){
 
         assertNotNull(proxy.addNewThreadToFirebase(testThread));
+    }
+
+    @Test
+    public void testReadChatThreadTableShouldNotReturnNull(){
+        ArrayList<String> chatIdsTest = new ArrayList<String>();
+        chatIdsTest.add("LA4BsMDbmrS_TSfq6WK");
+        ArrayList<ChatThread> threadForTest = new ArrayList<>(proxy.getUsersChatsById(chatIdsTest));
+
+        assertNotNull(threadForTest.get(0));
     }
 }

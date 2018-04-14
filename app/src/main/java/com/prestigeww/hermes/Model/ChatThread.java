@@ -1,9 +1,10 @@
 package com.prestigeww.hermes.Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ChatThread {
+public class ChatThread implements Serializable {
     private String chatId;
     private ArrayList<String> userIds;
     private User admin;
