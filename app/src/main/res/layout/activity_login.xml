@@ -23,7 +23,7 @@
         app:srcCompat="@drawable/hermes_logo" />
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/loginEmailEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -41,7 +41,7 @@
         app:layout_constraintVertical_bias="0.463" />
 
     <EditText
-        android:id="@+id/editText6"
+        android:id="@+id/loginPasswordEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -74,7 +74,7 @@
         app:layout_constraintVertical_bias="0.767" />
 
     <Button
-        android:id="@+id/createAccountMainButton"
+        android:id="@+id/createAccountButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
