@@ -32,33 +32,28 @@ public class FirebaseProxy extends HermesUtiltity {
         mHermesStorage = FirebaseStorage.getInstance().getReference();
     }
 
-    public ArrayList<ChatThread> getUsersChatsById(final ArrayList<String> chatIds){
+    
+
+    public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
-
-        while(usersThreads.isEmpty()){
-            mDatabaseReference.child("ChatThreads").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (String id: chatIds){
-                        for (DataSnapshot threadSnapshot: dataSnapshot.getChildren()){
-                            if (threadSnapshot.getKey().equals("-"+id)){
-                                String tempThreadName = (String) threadSnapshot.child("chatName").getValue();
-                                String tempThreadId = (String) threadSnapshot.child("chatId").getValue();
-                                Log.e("Temp Thread toString:", tempThreadName);
-                                ChatThread tempThread = new ChatThread(tempThreadId,tempThreadName);
-                                usersThreads.add(tempThread);
-                            }
-                        }
+        while (usersThreads.size() != chatIds.size()){
+            for(String id : chatIds){
+                mDatabaseReference.child("ChatThreads").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String chatName = dataSnapshot.child("chatName").getValue().toString();
+                        String chatId = dataSnapshot.child("chatId").getValue().toString();
+                        ChatThread threadToAdd = new ChatThread(chatId,chatName);
+                        usersThreads.add(threadToAdd);
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("Database Error: ", databaseError.getDetails());
-                }
-            });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
         }
-
 
         return usersThreads;
     }
