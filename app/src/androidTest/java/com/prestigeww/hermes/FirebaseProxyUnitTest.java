@@ -35,13 +35,7 @@ public class FirebaseProxyUnitTest extends TestCase {
         assertNotNull(proxy.postThreadToFirebase(testThread));
     }
 
-    @Test
-    public void testReadChatThreadTableShouldNotReturnNull(){
-
-        ArrayList<ChatThread> threadForTest = new ArrayList<>(proxy.getUsersChatsById(chatIdsTest));
-
-        assertNotNull(threadForTest.get(0));
-    }
+    
 
     @Test
     public void testReadChatThreadShouldReturnNumberOfIds(){

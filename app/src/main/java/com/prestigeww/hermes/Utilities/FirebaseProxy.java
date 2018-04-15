@@ -32,7 +32,7 @@ public class FirebaseProxy extends HermesUtiltity {
         mHermesStorage = FirebaseStorage.getInstance().getReference();
     }
 
-    
+
 
     public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
