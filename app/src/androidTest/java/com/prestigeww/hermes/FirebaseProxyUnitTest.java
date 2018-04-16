@@ -35,7 +35,7 @@ public class FirebaseProxyUnitTest extends TestCase {
         assertNotNull(proxy.postThreadToFirebase(testThread));
     }
 
-    
+
 
     @Test
     public void testReadChatThreadShouldReturnNumberOfIds(){
