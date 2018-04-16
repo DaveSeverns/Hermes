@@ -11,54 +11,58 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.prestigeww.hermes.Model.ChatThread;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class FirebaseProxy extends HermesUtiltity {
     public FirebaseApp firebaseApp;
     public FirebaseDatabase mFirebaseDatabase;
-    public DatabaseReference mUserDatabase;
-    public DatabaseReference mChatThreadDatabase;
+    public DatabaseReference mDatabaseReference;
+
     public StorageReference mHermesStorage;
     public FirebaseProxy(){
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mUserDatabase = mFirebaseDatabase.getReference().child("Users");
-        mChatThreadDatabase = mFirebaseDatabase.getReference().child("ChatThreads");
+        mDatabaseReference = mFirebaseDatabase.getReference();
+        mHermesStorage = FirebaseStorage.getInstance().getReference();
     }
 
-    public ArrayList<ChatThread> getUsersChatsById(final ArrayList<String> chatIds){
+
+
+    public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
-
-        while(usersThreads.isEmpty()){
-            mChatThreadDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (String id:chatIds){
-                        //TODO finish project
-                        ChatThread tempThread = (ChatThread)dataSnapshot.child(id).getValue();
-                        usersThreads.add(tempThread);
+        while (usersThreads.size() != chatIds.size()){
+            for(String id : chatIds){
+                mDatabaseReference.child("ChatThreads").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String chatName = dataSnapshot.child("chatName").getValue().toString();
+                        String chatId = dataSnapshot.child("chatId").getValue().toString();
+                        ChatThread threadToAdd = new ChatThread(chatId,chatName);
+                        usersThreads.add(threadToAdd);
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("Database Error: ", databaseError.getDetails());
-                }
-            });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
         }
-
 
         return usersThreads;
     }
 
 
-    public String addNewThreadToFirebase(ChatThread chatThread){
-        String result = mChatThreadDatabase.push().setValue(chatThread).getResult().toString();
-        return result;
+    public String postThreadToFirebase(ChatThread chatThread){
+        String threadKey = mDatabaseReference.child("ChatThreads").push().getKey();
+        mDatabaseReference.child(threadKey).setValue(chatThread);
+        return threadKey;
     }
 
 

@@ -1,9 +1,10 @@
 package com.prestigeww.hermes.Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ChatThread {
+public class ChatThread implements Serializable {
     private String chatId;
     private ArrayList<String> userIds;
     private User admin;
@@ -24,6 +25,22 @@ public class ChatThread {
         this.chatName = chatName;
         userIds = new ArrayList<>();
         messages = new ArrayList<>();
+    }
+
+    public ChatThread(String chatId, String chatName ){
+        this.userIds = new ArrayList<>();
+        this.messages = new ArrayList<>();
+        this.chatName = chatName;
+        this.chatId = chatId;
+        this.admin = null;
+    }
+
+    public ChatThread(ChatThread value) {
+        this.chatId = value.chatId;
+        this.admin = value.admin;
+        this.chatName = value.chatName;
+        this.messages = value.messages;
+        this.userIds = value.userIds;
     }
 
     @Override
@@ -88,4 +105,6 @@ public class ChatThread {
     public void setMessages(ArrayList<MessageInChat> messages) {
         this.messages = messages;
     }
+
+
 }
