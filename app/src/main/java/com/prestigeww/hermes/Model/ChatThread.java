@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ChatThread implements Serializable {
+
     private String chatId;
     private ArrayList<String> userIds;
     private User admin;
