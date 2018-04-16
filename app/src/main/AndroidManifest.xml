@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.prestigeww.hermes">
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +19,7 @@
         </activity>
         <activity android:name=".Activities.SIgnUpActivity" />
         <activity android:name=".Activities.ChatThreadFeedActivity" />
-        <activity android:name=".Activities.ChatWindowActivity"></activity>
+        <activity android:name=".Activities.ChatWindowActivity" />
     </application>
 
 </manifest>

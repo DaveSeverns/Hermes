@@ -3,6 +3,7 @@ package com.prestigeww.hermes.Activities;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import com.prestigeww.hermes.R;
+import com.prestigeww.hermes.Utilities.NewMessageNotification;
 
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
