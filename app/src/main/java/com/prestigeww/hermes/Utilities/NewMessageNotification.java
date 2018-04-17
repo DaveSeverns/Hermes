@@ -117,7 +117,7 @@ public class NewMessageNotification {
                 // content intent provides access to the same actions in
                 // another way.
                 .addAction(
-                        R.drawable.ic_action_stat_share,
+                        R.drawable.hermes,
                         res.getString(R.string.action_share),
                         PendingIntent.getActivity(
                                 context,
@@ -127,8 +127,8 @@ public class NewMessageNotification {
                                         .putExtra(Intent.EXTRA_TEXT, "New  Message"), "Title"),
                                 PendingIntent.FLAG_UPDATE_CURRENT))
                 .addAction(
-                        R.drawable.ic_action_stat_reply,
-                        res.getString(R.string.action_reply),
+                        R.drawable.notify,
+                        res.getString(R.string.actiton_reply),
                         null)
 
                 // Automatically dismiss the notification when it is touched.
