@@ -19,6 +19,8 @@ public class MessageInChat {
         this.chatThreadId = chatThreadId;
         this.body = body;
         this.sender = sender;
+        this.timeDateSent = getCurrentDateString();
+        this.docId =  null;
     }
 
     public MessageInChat(String messageId, String chatThreadId, String body, String sender, String docId){
@@ -26,6 +28,8 @@ public class MessageInChat {
         this.chatThreadId = chatThreadId;
         this.body = body;
         this.sender = sender;
+        this.timeDateSent = getCurrentDateString();
+        this.docId = docId;
     }
 
     private String getCurrentDateString(){

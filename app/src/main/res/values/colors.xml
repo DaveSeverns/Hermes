@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#924F94</color>
+    <color name="colorPrimaryDark">#8A08C5</color>
+    <color name="colorAccent">#8EB1C4</color>
+    <color name="colorOffAccent">#8FB2FA</color>
+    <color name="chatFeedBlackBackGround">#333333</color>
+    <color name="chatHolderBackGround">#121212</color>
 </resources>
