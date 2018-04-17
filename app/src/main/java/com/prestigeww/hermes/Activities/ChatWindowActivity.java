@@ -26,7 +26,7 @@ public class ChatWindowActivity extends AppCompatActivity {
 
         chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
 
-
+        //return true if successful and will add to chat ui
         chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
