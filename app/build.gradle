@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.prestigeww.hermes"
-        minSdkVersion 23
+        minSdkVersion 26
         multiDexEnabled = true
         targetSdkVersion 27
         versionCode 1

@@ -33,7 +33,7 @@ public class SIgnUpActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SIgnUpActivity.this, ChatWindowActivity.class);
+                Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
                 startActivity(intent);
             }
         });
