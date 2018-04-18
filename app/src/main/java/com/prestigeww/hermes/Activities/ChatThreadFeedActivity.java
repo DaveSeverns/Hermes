@@ -1,9 +1,11 @@
 package com.prestigeww.hermes.Activities;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +25,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
     private DatabaseReference mDatabaseRef;
     private ArrayList<String> chatIds = new ArrayList<>();
+    private FloatingActionButton addChatButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,13 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        addChatButton = findViewById(R.id.add_new_chat_button);
+        addChatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     @Override
