@@ -6,4 +6,7 @@
     <color name="colorOffAccent">#8FB2FA</color>
     <color name="chatFeedBlackBackGround">#333333</color>
     <color name="chatHolderBackGround">#121212</color>
+    <color name="Purple">#551A8B</color>
+    <color name="lightGray">#E4E4E4</color>
+    <color name="lightTeal">#84FFFF</color>
 </resources>
