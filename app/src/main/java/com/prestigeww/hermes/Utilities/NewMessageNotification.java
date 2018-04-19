@@ -51,7 +51,7 @@ public class NewMessageNotification {
 
         // This image is used as the notification's large icon (thumbnail).
         // TODO: Remove this if your notification has no relevant thumbnail.
-        final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.hermes);
+        final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.notify);
 
 
         final String ticker = exampleString;
@@ -66,7 +66,7 @@ public class NewMessageNotification {
 
                 // Set required fields, including the small icon, the
                 // notification title, and text.
-                .setSmallIcon(R.drawable.notify)
+                .setSmallIcon(R.drawable.hermes)
                 .setContentTitle(title)
                 .setContentText(text)
 
@@ -116,20 +116,7 @@ public class NewMessageNotification {
                 // should ensure that the activity in this notification's
                 // content intent provides access to the same actions in
                 // another way.
-                .addAction(
-                        R.drawable.hermes,
-                        res.getString(R.string.action_share),
-                        PendingIntent.getActivity(
-                                context,
-                                0,
-                                Intent.createChooser(new Intent(Intent.ACTION_SEND)
-                                        .setType("text/plain")
-                                        .putExtra(Intent.EXTRA_TEXT, "New  Message"), "Title"),
-                                PendingIntent.FLAG_UPDATE_CURRENT))
-                .addAction(
-                        R.drawable.notify,
-                        res.getString(R.string.actiton_reply),
-                        null)
+
 
                 // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);

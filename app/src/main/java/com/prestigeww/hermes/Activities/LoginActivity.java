@@ -9,6 +9,7 @@ import android.widget.EditText;
 
 import com.google.firebase.FirebaseApp;
 import com.prestigeww.hermes.R;
+import com.prestigeww.hermes.Utilities.NewMessageNotification;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
         createAccountButton = (Button) findViewById(R.id.createAccountButton);
         emailEditText = (EditText) findViewById(R.id.loginEmailEditText);
         passwordEditText = (EditText) findViewById(R.id.loginPasswordEditText);
+        new NewMessageNotification().notify(this,"Demo Chat ","Demo Message",1);
 
         //open chatThreadFeedActivity after button click
         signInButton.setOnClickListener(new View.OnClickListener() {
