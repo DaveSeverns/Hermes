@@ -63,7 +63,8 @@ public class FirebaseProxy extends HermesUtiltity {
 
     public String postThreadToFirebase(ChatThread chatThread){
         String threadKey = mDatabaseReference.child("ChatThreads").push().getKey();
-        mDatabaseReference.child(threadKey).setValue(chatThread);
+        chatThread.setChatId(threadKey);
+        mDatabaseReference.child("ChatThreads").child(threadKey).setValue(chatThread);
         return threadKey;
     }
 
