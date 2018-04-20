@@ -1,5 +1,7 @@
 package com.prestigeww.hermes.Activities;
 
+import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
@@ -65,8 +68,16 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+        // onResume gets called after this to handle the intent
+        setIntent(intent);
+    }
+    @Override
     protected void onResume() {
         super.onResume();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            new NfcUtility().enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
     }
+
 }

@@ -14,6 +14,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.prestigeww.hermes.Model.ChatThread;
+import com.prestigeww.hermes.Model.DefaultUser;
+import com.prestigeww.hermes.Model.RegisteredUser;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -65,5 +67,25 @@ public class FirebaseProxy extends HermesUtiltity {
         return threadKey;
     }
 
+    public String postDefaultUserToFirebase(){
+        String threadKey = mDatabaseReference.child("User").push().getKey();
+        mDatabaseReference.child("User").child(threadKey).setValue(new DefaultUser(false,threadKey));
+        return threadKey;
+    }
+    public String postDefaultUserToFirebase(DefaultUser defaultUser){
+        String threadKey = mDatabaseReference.child("User").push().getKey();
+        mDatabaseReference.child("User").child(threadKey).setValue(defaultUser);
+        return threadKey;
+    }
+    public String postRegisteredUserToFirebase(RegisteredUser registeredUser){
+        String threadKey = mDatabaseReference.child("User").push().getKey();
+        mDatabaseReference.child("User").child(threadKey).setValue(registeredUser);
+        return threadKey;
+    }
+    public String postChatIDInUserToFirebase(String chatID){
+        String threadKey = mDatabaseReference.child("User").push().getKey();
+        mDatabaseReference.child("User").child("-LAYgRr9gkQxY_re1_wc").child("ChatID").setValue("{"+chatID+"}");
+        return threadKey;
+    }
 
 }

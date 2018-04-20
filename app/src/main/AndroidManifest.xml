@@ -3,6 +3,8 @@
     package="com.prestigeww.hermes">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -19,12 +21,22 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SIgnUpActivity" />
-        <activity android:name=".Activities.ChatThreadFeedActivity" />
+        <activity android:name=".Activities.ChatThreadFeedActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/edu.temple.hermes" />
+            </intent-filter>
+        </activity>
         <activity android:name=".Activities.ChatWindowActivity" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity android:name=".Activities.DefaultUserSignUp"></activity>
     </application>
 
 </manifest>

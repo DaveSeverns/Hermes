@@ -8,7 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.prestigeww.hermes.Model.ChatThread;
+import com.prestigeww.hermes.Model.RegisteredUser;
 import com.prestigeww.hermes.R;
+import com.prestigeww.hermes.Utilities.FirebaseProxy;
 
 
 public class SIgnUpActivity extends AppCompatActivity {
@@ -18,6 +20,7 @@ public class SIgnUpActivity extends AppCompatActivity {
     EditText emailEditText;
     EditText phoneNumberEditText;
     EditText passwordEditText;
+    String userid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,14 @@ public class SIgnUpActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                RegisteredUser registeredUser=new RegisteredUser(nameEditText.getText().toString(),emailEditText.getText().toString()
+                ,passwordEditText.getText().toString(),true);
+                userid=new FirebaseProxy().postRegisteredUserToFirebase(registeredUser);
                 Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit().putString("UserType","Registered").commit();
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit().putString("UserID",userid).commit();
                 startActivity(intent);
             }
         });

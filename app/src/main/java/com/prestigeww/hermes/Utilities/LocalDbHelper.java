@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.prestigeww.hermes.Model.MessageInChat;
+import com.prestigeww.hermes.Model.RegisteredUser;
 import com.prestigeww.hermes.Model.User;
 
 public class LocalDbHelper extends SQLiteOpenHelper {
@@ -91,12 +92,12 @@ public class LocalDbHelper extends SQLiteOpenHelper {
 
     public Cursor getMessagesData(String Chatid) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from "+MESSAGE_TABLE_NAME+" where "+MESSAGE_COLUMN_CHATID+"="+Chatid+"", null );
+        Cursor res =  db.rawQuery( "select * from "+MESSAGE_TABLE_NAME+" where "+MESSAGE_COLUMN_CHATID+"='"+Chatid+"'", null );
         return res;
     }
     public Cursor getUserData(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from "+USER_TABLE_NAME+" where "+USER_COLUMN_ID+"="+id+"", null );
+        Cursor res =  db.rawQuery( "select * from "+USER_TABLE_NAME+" where "+USER_COLUMN_ID +" = '"+id+"'", null );
         return res;
     }
     public Cursor getChatmemberData() {
@@ -170,18 +171,17 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         }
         return array_list;
     }
-    public ArrayList<User> getAllUser(String Chatid) {
-        ArrayList<User> array_list = new ArrayList<User>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  getUserData(Chatid);
+    public ArrayList<RegisteredUser> getAllUser(String id) {
+        ArrayList<RegisteredUser> array_list = new ArrayList<RegisteredUser>();
+        Cursor res =  getUserData(id);
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
             String uid=res.getString(res.getColumnIndex(USER_COLUMN_ID));
             String uname=res.getString(res.getColumnIndex(USER_COLUMN_USERNAME));
             String email=res.getString(res.getColumnIndex(USER_COLUMN_EMAIL));
-            /*User u=new User(uid,uname,email);
-            array_list.add(u);*/
+            RegisteredUser u=new RegisteredUser(uid,uname,email,true);
+            array_list.add(u);
             res.moveToNext();
         }
         return array_list;
