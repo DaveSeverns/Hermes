@@ -2,12 +2,13 @@ package com.prestigeww.hermes.Model;
 
 import android.os.Message;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MessageInChat {
+public class MessageInChat implements Serializable{
 
     private String messageId;
     private String chatThreadId;
