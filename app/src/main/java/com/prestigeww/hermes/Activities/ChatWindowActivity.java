@@ -30,10 +30,9 @@ public class ChatWindowActivity extends AppCompatActivity {
         chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
-               return true;
+                return true;
             }
         });
 
     }
-
 }

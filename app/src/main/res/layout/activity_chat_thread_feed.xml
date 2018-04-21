@@ -4,6 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/chatFeedBlackBackGround"
     tools:context=".Activities.ChatThreadFeedActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/add_new_chat_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="bottom|right|center_vertical"
+            android:layout_marginBottom="15dp"
+            android:layout_marginRight="10dp"
+            android:clickable="true"
+            app:elevation="8dp"
+            app:srcCompat="@android:drawable/ic_menu_add" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/chat_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="0dp"
+            android:background="@color/chatFeedBlackBackGround"
+             />
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

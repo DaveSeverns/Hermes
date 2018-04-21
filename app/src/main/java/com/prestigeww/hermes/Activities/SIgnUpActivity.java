@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.R;
 
 
@@ -37,7 +38,6 @@ public class SIgnUpActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
 
     }
 }
