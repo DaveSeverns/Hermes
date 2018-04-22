@@ -10,11 +10,13 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.LocalDbHelper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class ChatWindowActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     FirebaseProxy firebaseProxy = new FirebaseProxy();
 
+    LocalDbHelper localDbHelper;
+
     MessageInChat messageInChat;
     List<MessageInChat> messages = new ArrayList<>();
 
@@ -41,13 +45,16 @@ public class ChatWindowActivity extends AppCompatActivity {
 
         chatView = (ChatView) findViewById(R.id.chat_view);
 
-
         Intent intent = getIntent();
         String chatName = intent.getStringExtra("chatSelected");
         Toast.makeText(ChatWindowActivity.this, chatName, Toast.LENGTH_SHORT).show();
         Log.d("chatSelectedInWindow", chatName);
 
         chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
+
+        List<MessageInChat> testingFromFirebase = getMessagesFromFirebase();
+        Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
+
 
         //return true if successful and will add to chat ui
         chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
@@ -63,8 +70,8 @@ public class ChatWindowActivity extends AppCompatActivity {
                 //messageInChat =  new MessageInChat(messageId, chatId, body, sender);
                 //chatThread.addMessageToChatThread(messageInChat);
 
-                List<String> testingFromFirebase = getMessagesFromFirebase();
-                Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
+                //List<MessageInChat> testingFromFirebase = getMessagesFromFirebase();
+                //Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
 
                // messages = getMessagesFromFirebase();
                 messageInChat = new MessageInChat();
@@ -85,8 +92,10 @@ public class ChatWindowActivity extends AppCompatActivity {
         });
     }
 
-    public List<String> getMessagesFromFirebase(){
-        final List<String> storedMessages = new ArrayList<>();
+    public List<MessageInChat> getMessagesFromFirebase(){
+        final GenericTypeIndicator<List<MessageInChat>> storedMessages = new GenericTypeIndicator<List<MessageInChat>>();
+        //final List<MessageInChat>[] messages = {new ArrayList<>()};
+        final List<String> mes = new ArrayList<>();
 
 
         DatabaseReference rootRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
@@ -95,18 +104,20 @@ public class ChatWindowActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String friend = ds.getKey();
-                    storedMessages.add(friend);
+                    MessageInChat messages = new MessageInChat();
+                    messages = ds.getValue(MessageInChat.class);
+                    mes.add(messages.getBody());
+                    Log.d("MessageFromFireBase", mes.toString());
                 }
-                Log.d("TAG", storedMessages.toString());
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         };
         messagesRef.addListenerForSingleValueEvent(eventListener);
 
-        return storedMessages;
+        return messages;
     }
 
 }

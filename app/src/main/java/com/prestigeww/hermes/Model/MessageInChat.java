@@ -26,7 +26,6 @@ public class MessageInChat {
         this.chatThreadId = chatThreadId;
         this.body = body;
         this.sender = sender;
-        this.timeDateSent = getCurrentDateString();
         this.docId =  null;
     }
 
