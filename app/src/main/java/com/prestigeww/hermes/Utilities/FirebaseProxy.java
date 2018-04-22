@@ -27,13 +27,13 @@ public class FirebaseProxy extends HermesUtiltity {
     public FirebaseDatabase mFirebaseDatabase;
     public DatabaseReference mDatabaseReference;
 
+
     public StorageReference mHermesStorage;
     public FirebaseProxy(){
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference();
         mHermesStorage = FirebaseStorage.getInstance().getReference();
     }
-
 
 
     public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
@@ -67,6 +67,4 @@ public class FirebaseProxy extends HermesUtiltity {
         mDatabaseReference.child("ChatThreads").child(threadKey).setValue(chatThread);
         return threadKey;
     }
-
-
 }

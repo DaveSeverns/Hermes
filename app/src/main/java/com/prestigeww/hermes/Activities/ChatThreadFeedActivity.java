@@ -2,6 +2,7 @@ package com.prestigeww.hermes.Activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
@@ -44,11 +47,15 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private ArrayList<String> chatIds = new ArrayList<>();
     private FloatingActionButton addChatButton;
     private LocalDbHelper dbHelper;
+    TextView chatNameTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
+
+        chatNameTextView = (TextView) findViewById(R.id.chat_name_label);
+
         firebaseProxy = new FirebaseProxy();
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
@@ -76,8 +83,23 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                         ThreadViewHolder.class,
                         mDatabaseRef) {
             @Override
-            protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
+            protected void populateViewHolder(final ThreadViewHolder viewHolder, ChatThread model, final int position) {
                 viewHolder.bindThread(model);
+               // viewHolder.onClick(v);
+
+
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(ChatThreadFeedActivity.this, "Recycle Click" + position, Toast.LENGTH_SHORT).show();
+                        viewHolder.onClick(v);
+
+                        Intent intent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+                        intent.putExtra("chatSelected", viewHolder.getChatSelected());
+                        startActivity(intent);
+
+                    }
+                });
             }
         };
         recyclerView.setAdapter(firebaseRecyclerAdapter);
@@ -90,7 +112,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     }
 
     protected void addChatAlert(){
-
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.add_chat_dialog_box,null);
         final EditText addChatNameText = dialogView.findViewById(R.id.chat_name_edit_text);
@@ -109,7 +130,5 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 dbHelper.insertChatmember(chatId);
             }
         }).show();
-
-
     }
 }
