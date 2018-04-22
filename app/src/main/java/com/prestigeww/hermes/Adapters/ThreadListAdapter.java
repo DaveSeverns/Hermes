@@ -1,18 +1,35 @@
 package com.prestigeww.hermes.Adapters;
 
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public class ThreadListAdapter extends BaseAdapter {
+import com.prestigeww.hermes.Model.ChatThread;
+import com.prestigeww.hermes.R;
+import com.prestigeww.hermes.Utilities.ThreadViewHolder;
+
+import java.util.ArrayList;
+
+public class ThreadListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
+    ArrayList<ChatThread> collection;
+
+    public ThreadListAdapter(ArrayList<ChatThread> collection){
+        this.collection = collection;
+    }
+
+    @NonNull
     @Override
-    public int getCount() {
-        return 0;
+    public ThreadViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View holderView = LayoutInflater.from(parent.getContext()).inflate(R.layout.thread_holder_view, parent, false);
+        return new ThreadViewHolder(holderView);
     }
 
     @Override
-    public Object getItem(int i) {
-        return null;
+    public void onBindViewHolder(@NonNull ThreadViewHolder holder, int position) {
+        holder.bindThread(collection.get(position));
     }
 
     @Override
@@ -21,7 +38,8 @@ public class ThreadListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        return null;
+    public int getItemCount() {
+        return collection.size();
     }
+
 }

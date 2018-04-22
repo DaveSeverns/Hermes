@@ -17,6 +17,7 @@ import android.widget.EditText;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
@@ -38,6 +39,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private ArrayList<String> chatIds = new ArrayList<>();
     private FloatingActionButton addChatButton;
     private LocalDbHelper dbHelper;
+    private ThreadListAdapter threadListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 viewHolder.bindThread(model);
             }
         };
-        recyclerView.setAdapter(firebaseRecyclerAdapter);
+        threadListAdapter = new ThreadListAdapter(chatThreads);
+        recyclerView.setAdapter(threadListAdapter);
     }
 
     @Override
@@ -88,6 +91,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             new NfcUtility().enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
+        threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
