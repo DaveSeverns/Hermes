@@ -51,7 +51,7 @@ public class FirebaseProxy extends HermesUtiltity {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        Log.e("FB error: ", databaseError.getDetails());
                     }
                 });
             }
