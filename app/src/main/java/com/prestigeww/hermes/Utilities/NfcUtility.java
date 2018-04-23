@@ -6,7 +6,12 @@ import android.nfc.NfcAdapter;
 import android.os.Parcelable;
 import android.util.Log;
 
+import android.content.Context;
+
 public class NfcUtility extends HermesUtiltity {
+    public NfcUtility(Context context){
+        super(context);
+    }
     public void addToChat(String chatID){
         /*
        */
