@@ -18,12 +18,13 @@ import org.w3c.dom.Text;
 
 import java.util.Random;
 
-public class ThreadViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class ThreadViewHolder extends RecyclerView.ViewHolder{
     private TextView chatNameText;
     private TextView chatMemberCount;
     private RelativeLayout circleLayout;
     static Random randomGenerator;
     String chatSelected;
+    public ChatThread threadInHolder;
 
     public ThreadViewHolder(View itemView) {
         super(itemView);
@@ -33,6 +34,7 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder implements View.On
     }
 
     public void bindThread(ChatThread thread){
+        threadInHolder = thread;
         chatNameText.setText(thread.getChatName());
         if(!thread.getUserIds().isEmpty()){
             chatMemberCount.setText(thread.getUserIds().size());
@@ -50,15 +52,8 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder implements View.On
         return String.format("FF%06X", newColor);
     }
 
-    @Override
-    public void onClick(View v) {
-        int position = getAdapterPosition();
-        v.getId();
-        TextView textView =  v.findViewById(R.id.chat_name_label);
-        chatSelected = textView.getText().toString();
-        Log.d("textView in ViewHolder", chatSelected);
-        //Toast.makeText(v.getContext(), textView.getText().toString(), Toast.LENGTH_LONG).show();
-
+    public String getIdOfThread(){
+        return threadInHolder.getChatId();
     }
 
     public String getChatSelected(){

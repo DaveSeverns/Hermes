@@ -23,8 +23,8 @@ public class FirebaseProxyUnitTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         chatIdsTest = new ArrayList<String>();
-        chatIdsTest.add("-LA4BsMDbmrS_TSfq6WK");
-        chatIdsTest.add("-LA4CnonQ7XJrmMnRhmc");
+        chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
+
         proxy = new FirebaseProxy();
         testThread = new ChatThread();
     }
@@ -40,6 +40,6 @@ public class FirebaseProxyUnitTest extends TestCase {
     @Test
     public void testReadChatThreadShouldReturnNumberOfIds(){
         ArrayList<ChatThread> threadsForThisTest = new ArrayList<>(proxy.getChatsById(chatIdsTest));
-        assertEquals(2,threadsForThisTest.size());
+        assertEquals(1,threadsForThisTest.size());
     }
 }

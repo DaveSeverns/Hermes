@@ -49,6 +49,7 @@ public class ChatWindowActivity extends AppCompatActivity {
 
     MessageInChat messageInChat;
     List<MessageInChat> messages = new ArrayList<>();
+    String chatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +61,12 @@ public class ChatWindowActivity extends AppCompatActivity {
         messageEditText = (EditText) findViewById(R.id.editTextToEnterMessage);
 
         Intent intent = getIntent();
-        //String chatName = intent.getStringExtra("chatSelected");
-        //Toast.makeText(ChatWindowActivity.this, chatName, Toast.LENGTH_SHORT).show();
-        //Log.d("chatSelectedInWindow", chatName);
+        chatId = intent.getStringExtra("chat_id");
+        Toast.makeText(ChatWindowActivity.this, chatId, Toast.LENGTH_SHORT).show();
+        Log.d("chatSelectedInWindow", chatId);
 
-        //chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-
-        //ist<MessageInChat> testingFromFirebase = getMessagesFromFirebase();
-        //Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
-
+        List<MessageInChat> testingFromFirebase = getMessagesFromFirebase();
+        Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
 
         sendbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,12 +79,10 @@ public class ChatWindowActivity extends AppCompatActivity {
 
     public void displayMessages(){
 
-        String chatId = "-LAaHzJNiSFz7n-il8mi";
         String chatName = "test";
         String messageId = "testMessage";
         String body = "This is a test message";
         String sender = "-LAQlcdVIByjfJ7zI2Hr";
-
 
         //set body of messageInChat object from editText and add to listView
         messageInChat = new MessageInChat();
@@ -96,8 +92,8 @@ public class ChatWindowActivity extends AppCompatActivity {
 
         //get to right position as needed to send and receive message updates
         mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
-        mDatabaseReference.child("-LAaHzJNiSFz7n-il8mi").child("messages").setValue(messages);
-        mDatabaseReference = mDatabaseReference.child("-LAaHzJNiSFz7n-il8mi").child("messages");
+        mDatabaseReference.child(chatId).child("messages").setValue(messages);
+        mDatabaseReference = mDatabaseReference.child(chatId).child("messages");
 
         //set firebaselistAdapter for changes
         firebaseListAdapter = new FirebaseListAdapter<MessageInChat>(this, MessageInChat.class, R.layout.textview_for_listview, mDatabaseReference) {
@@ -111,14 +107,15 @@ public class ChatWindowActivity extends AppCompatActivity {
         listViewOfMessages.setAdapter(firebaseListAdapter);
     }
 
-   /* public List<MessageInChat> getMessagesFromFirebase(){
+    public List<MessageInChat> getMessagesFromFirebase(){
         final GenericTypeIndicator<List<MessageInChat>> storedMessages = new GenericTypeIndicator<List<MessageInChat>>();
         //final List<MessageInChat>[] messages = {new ArrayList<>()};
         final List<String> mes = new ArrayList<>();
 
 
         DatabaseReference rootRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
-        DatabaseReference messagesRef = rootRef.child("-LAaHzJNiSFz7n-il8mi").child("messages");
+        DatabaseReference messagesRef = rootRef.child(chatId).child("messages");
+
         ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -130,14 +127,14 @@ public class ChatWindowActivity extends AppCompatActivity {
                 }
             }
 
-
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         };
+
         messagesRef.addListenerForSingleValueEvent(eventListener);
 
         return messages;
     }
-    */
+
 
 }

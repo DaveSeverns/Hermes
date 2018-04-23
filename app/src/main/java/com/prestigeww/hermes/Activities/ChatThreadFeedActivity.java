@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.ViewGroup;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
@@ -55,11 +56,12 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat_thread_feed);
 
         chatNameTextView = (TextView) findViewById(R.id.chat_name_label);
-
         firebaseProxy = new FirebaseProxy();
+
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
         chatIds.addAll(dbHelper.getAllChatmember());
+
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
         chatThreads = firebaseProxy.getChatsById(chatIds);
@@ -82,33 +84,40 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                         R.layout.thread_holder_view,
                         ThreadViewHolder.class,
                         mDatabaseRef) {
+
+            @Override
+            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
+                super.onBindViewHolder(viewHolder, position);
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                     @Override
+                     public void onClick(View v) {
+                         if(viewHolder.getIdOfThread() != null){
+                             Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
+                         }
+                         Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+                         toChatWindow.putExtra("chat_id",viewHolder.getIdOfThread());
+                         startActivity(toChatWindow);
+                     }
+                 });
+
+            }
+
             @Override
             protected void populateViewHolder(final ThreadViewHolder viewHolder, ChatThread model, final int position) {
                 viewHolder.bindThread(model);
                // viewHolder.onClick(v);
-
-
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Toast.makeText(ChatThreadFeedActivity.this, "Recycle Click" + position, Toast.LENGTH_SHORT).show();
-                        viewHolder.onClick(v);
-
-                        Intent intent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                        intent.putExtra("chatSelected", viewHolder.getChatSelected());
-                        startActivity(intent);
-
-                    }
-                });
             }
+
         };
+
         recyclerView.setAdapter(firebaseRecyclerAdapter);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        firebaseRecyclerAdapter.notifyDataSetChanged();
+      //  firebaseRecyclerAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
@@ -128,6 +137,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 String chatId;
                 chatId = firebaseProxy.postThreadToFirebase(threadToAdd);
                 dbHelper.insertChatmember(chatId);
+                chatThreads.add(threadToAdd);
             }
         }).show();
     }
