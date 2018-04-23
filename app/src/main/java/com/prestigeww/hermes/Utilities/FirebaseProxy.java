@@ -1,5 +1,6 @@
 package com.prestigeww.hermes.Utilities;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -24,9 +25,11 @@ public class FirebaseProxy extends HermesUtiltity {
     public FirebaseApp firebaseApp;
     public FirebaseDatabase mFirebaseDatabase;
     public DatabaseReference mDatabaseReference;
+    public static int size;
 
     public StorageReference mHermesStorage;
-    public FirebaseProxy(){
+    public FirebaseProxy(Context context){
+        super(context);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference();
         mHermesStorage = FirebaseStorage.getInstance().getReference();
@@ -36,15 +39,22 @@ public class FirebaseProxy extends HermesUtiltity {
 
     public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
-        while (usersThreads.size() != chatIds.size()){
+        size = chatIds.size();
+        if (usersThreads.size() != size){
             for(String id : chatIds){
                 mDatabaseReference.child("ChatThreads").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        String chatName = dataSnapshot.child("chatName").getValue().toString();
-                        String chatId = dataSnapshot.child("chatId").getValue().toString();
-                        ChatThread threadToAdd = new ChatThread(chatId,chatName);
-                        usersThreads.add(threadToAdd);
+                        if(dataSnapshot.child("chatName").getValue() != null){
+                            String chatName = dataSnapshot.child("chatName").getValue().toString();
+                            String chatId = dataSnapshot.child("chatId").getValue().toString();
+                            ChatThread threadToAdd = new ChatThread(chatId,chatName);
+                            usersThreads.add(threadToAdd);
+                        }else {
+                            size--;
+                        }
+
+
                     }
 
                     @Override
