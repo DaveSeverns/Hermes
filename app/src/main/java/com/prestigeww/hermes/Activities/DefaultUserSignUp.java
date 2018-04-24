@@ -25,10 +25,10 @@ public class DefaultUserSignUp extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(defaultuser.getText().toString().equals(null)){
-                    userid=new FirebaseProxy().postDefaultUserToFirebase();
+                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
                 }
                 else {
-                    userid=new FirebaseProxy().postDefaultUserToFirebase(new DefaultUser(false,defaultuser.getText().toString()));
+                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(new DefaultUser(false,defaultuser.getText().toString()));
                 }
                 Intent i= new Intent(DefaultUserSignUp.this, ChatThreadFeedActivity.class);
                 getSharedPreferences("PREFERENCE", MODE_PRIVATE)
