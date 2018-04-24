@@ -20,11 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.SignUpActivity" />
+        <activity android:name=".Activities.SIgnUpActivity" />
         <activity android:name=".Activities.ChatThreadFeedActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="application/edu.temple.hermes" />

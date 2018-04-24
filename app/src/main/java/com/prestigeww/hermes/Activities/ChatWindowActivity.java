@@ -44,8 +44,11 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     }
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
+        String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserID",null);
+        Toast.makeText(ChatWindowActivity.this,"chatID for NDEF:"+ cID,Toast.LENGTH_LONG).show();
         NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMime("application/edu.temple.hermes",new String("Demo chat ID").getBytes())}
+                new NdefRecord[] { createMime("application/edu.temple.hermes",cID.getBytes())}
         );
         return msg;
     }

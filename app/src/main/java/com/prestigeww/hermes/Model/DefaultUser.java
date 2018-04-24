@@ -6,9 +6,7 @@ public class DefaultUser extends User {
     public DefaultUser(boolean isRegistered,String username){
         this.isRegistered=isRegistered;
         this.username=username;
-        this.chatIds=new ArrayList<String>();
-        chatIds.add("djs");
-        chatIds.add("frhegf");
+        this.ChatID=new ArrayList<String>();
     }
 
 }

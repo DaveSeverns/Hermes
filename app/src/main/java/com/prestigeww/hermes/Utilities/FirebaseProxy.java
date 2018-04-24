@@ -1,5 +1,9 @@
 package com.prestigeww.hermes.Utilities;
 
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -13,13 +17,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.prestigeww.hermes.Activities.SIgnUpActivity;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.DefaultUser;
 import com.prestigeww.hermes.Model.RegisteredUser;
 
 import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Objects;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class FirebaseProxy extends HermesUtiltity {
@@ -83,10 +91,22 @@ public class FirebaseProxy extends HermesUtiltity {
         mDatabaseReference.child("User").child(threadKey).setValue(registeredUser);
         return threadKey;
     }
-    public String postChatIDInUserToFirebase(String chatID){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
-        mDatabaseReference.child("User").child("-LAYgRr9gkQxY_re1_wc").child("ChatID").setValue("{"+chatID+"}");
-        return threadKey;
+    public String postUserUpdateToFirebase(RegisteredUser registeredUser,String uid){
+        mDatabaseReference.child("User").child(uid).setValue(registeredUser);
+        return uid;
     }
+    public void postChatIDInUserToFirebase(ArrayList<String> chatID,String UserID){
+        String threadKey = mDatabaseReference.child("User").push().getKey();
+       //String Ids= mDatabaseReference.child("User").child(UserID).child("ChatID").getKey();
+        //new LocalDbHelper().getAllChatmember()
+        Log.e("chat id that i got","jhjsgzfj");
+        mDatabaseReference.child("User").child(UserID).child("ChatID").setValue(chatID);
+    }
+    public boolean isInternetAvailable(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+    }
 }
