@@ -50,6 +50,8 @@ public class ChatWindowActivity extends AppCompatActivity {
     MessageInChat messageInChat;
     List<MessageInChat> messages = new ArrayList<>();
     String chatId;
+    List<String> messagesToAdd = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +67,8 @@ public class ChatWindowActivity extends AppCompatActivity {
         Toast.makeText(ChatWindowActivity.this, chatId, Toast.LENGTH_SHORT).show();
         Log.d("chatSelectedInWindow", chatId);
 
-        List<MessageInChat> testingFromFirebase = getMessagesFromFirebase();
-        Log.d("TestingFromFirebase: ", testingFromFirebase.toString());
+        //messages= getMessagesFromFirebase();
+        //Log.d("TestingFromFirebase: ", messages.toString());
 
         sendbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,9 +82,11 @@ public class ChatWindowActivity extends AppCompatActivity {
     public void displayMessages(){
 
         String chatName = "test";
-        String messageId = "testMessage";
+        final String messageId = "testMessage";
         String body = "This is a test message";
         String sender = "-LAQlcdVIByjfJ7zI2Hr";
+
+        messages = getMessagesFromFirebase();
 
         //set body of messageInChat object from editText and add to listView
         messageInChat = new MessageInChat();
@@ -93,6 +97,14 @@ public class ChatWindowActivity extends AppCompatActivity {
         //get to right position as needed to send and receive message updates
         mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
         mDatabaseReference.child(chatId).child("messages").setValue(messages);
+       // messages.clear();
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+        mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
         mDatabaseReference = mDatabaseReference.child(chatId).child("messages");
 
         //set firebaselistAdapter for changes
@@ -100,11 +112,14 @@ public class ChatWindowActivity extends AppCompatActivity {
             @Override
             protected void populateView(View v, MessageInChat model, int position) {
                 TextView textView = (TextView)v.findViewById(R.id.textViewForChat);
+                messagesToAdd.add(model.getBody());
+                Log.d("messagesToAdd: ", messagesToAdd.toString());
                 textView.setText(model.getBody());
-             //   Log.d("model.getBody", model.getBody());
+                Log.d("model.getBody", model.getBody());
             }
         };
         listViewOfMessages.setAdapter(firebaseListAdapter);
+
     }
 
     public List<MessageInChat> getMessagesFromFirebase(){
