@@ -26,7 +26,6 @@ public class SIgnUpActivity extends AppCompatActivity {
     Button signUpButton;
     EditText nameEditText;
     EditText emailEditText;
-    EditText phoneNumberEditText;
     EditText passwordEditText;
     String userid;
     HermesUtiltity hermesUtiltity;
@@ -40,7 +39,6 @@ public class SIgnUpActivity extends AppCompatActivity {
         signUpButton = (Button) findViewById(R.id.signUpButton);
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         emailEditText = (EditText) findViewById(R.id.emailSignUpEditText);
-        phoneNumberEditText = (EditText) findViewById(R.id.phoneNumberEditText);
         passwordEditText = (EditText) findViewById(R.id.passwordSignUpEditText);
         mAuth = FirebaseAuth.getInstance();
         //start ChatWindowActivity after click
@@ -50,7 +48,7 @@ public class SIgnUpActivity extends AppCompatActivity {
                 String email = emailEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
                 String username = nameEditText.getText().toString().trim();
-                String phoneNumber = phoneNumberEditText.getText().toString().trim();
+
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(username)){
                     if(hermesUtiltity.isValidEmail(email)){
                         if (hermesUtiltity.isValidPassword(password)){
