@@ -54,6 +54,15 @@ public class SIgnUpActivity extends AppCompatActivity {
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(username)){
                     if(hermesUtiltity.isValidEmail(email)){
                         if (hermesUtiltity.isValidPassword(password)){
+                            RegisteredUser registeredUser=new RegisteredUser(nameEditText.getText().toString(),emailEditText.getText().toString()
+                                    ,passwordEditText.getText().toString(),true);
+                            userid=new FirebaseProxy(SIgnUpActivity.this).postRegisteredUserToFirebase(registeredUser);
+                            Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
+                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                    .edit().putString("UserType","Registered").commit();
+                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                    .edit().putString("UserID",userid).commit();
+                            startActivity(intent);
                             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -74,16 +83,7 @@ public class SIgnUpActivity extends AppCompatActivity {
                     }
                 }
 
-                RegisteredUser registeredUser=new RegisteredUser(nameEditText.getText().toString(),emailEditText.getText().toString()
-                ,passwordEditText.getText().toString(),true);
-                userid=new FirebaseProxy(SIgnUpActivity.this)
-                        .postRegisteredUserToFirebase(registeredUser);
-                Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
-                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                        .edit().putString("UserType","Registered").commit();
-                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                        .edit().putString("UserID",userid).commit();
-                startActivity(intent);
+
             }
         });
 

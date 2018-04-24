@@ -103,9 +103,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                //if(!chatIds.contains(model.getChatId())){
-                //    return;
-                //}
+                if(!chatIds.contains(model.getChatId())){
+                    return;
+                }
                 viewHolder.bindThread(model);
             }
         };
@@ -121,7 +121,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility(ChatThreadFeedActivity.this).enterChat(getIntent());        }
+            new NfcUtility(this).enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
         //threadListAdapter.notifyDataSetChanged();
     }
