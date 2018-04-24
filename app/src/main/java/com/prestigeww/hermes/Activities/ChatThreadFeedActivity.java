@@ -121,7 +121,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility().enterChat(getIntent());        }
+            new NfcUtility(ChatThreadFeedActivity.this).enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
         //threadListAdapter.notifyDataSetChanged();
     }
