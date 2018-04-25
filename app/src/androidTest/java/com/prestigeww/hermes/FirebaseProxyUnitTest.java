@@ -21,6 +21,7 @@ public class FirebaseProxyUnitTest extends TestCase {
     private FirebaseProxy proxy;
     private ChatThread testThread;
     ArrayList<String> chatIdsTest;
+    private Context context;
     private Context mockContext;
     @Before
     public void setUp() throws Exception {
@@ -29,6 +30,9 @@ public class FirebaseProxyUnitTest extends TestCase {
         chatIdsTest = new ArrayList<String>();
         chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
         proxy = new FirebaseProxy(mockContext);
+        chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
+        context= InstrumentationRegistry.getContext();
+        proxy = new FirebaseProxy(context);
         testThread = new ChatThread();
     }
 

@@ -42,6 +42,11 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();
+
+        String uid=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserID",null);
+
+        hermesUtiltity = new HermesUtiltity(this);
         signInButton = (Button) findViewById(R.id.signInButton);
         createAccountButton = (Button) findViewById(R.id.createAccountButton);
         emailEditText = (EditText) findViewById(R.id.loginEmailEditText);
@@ -62,8 +67,9 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
+                if(new FirebaseProxy(LoginActivity.this).isInternetAvailable(LoginActivity.this)){
+                    String email = emailEditText.getText().toString().trim();
+                    String password = passwordEditText.getText().toString().trim();
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
                     if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
                         mAuth.signInWithEmailAndPassword(email,password);
@@ -72,6 +78,13 @@ public class LoginActivity extends AppCompatActivity {
                     }else {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
                     }
+                }
+
+                  //  getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                            //.edit().putBoolean("SignedIn", true).commit();
+
+                }else{
+                    Toast.makeText(LoginActivity.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -95,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     protected void onPause(){
