@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
@@ -37,8 +38,12 @@ import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 import java.util.ArrayList;
 import java.util.Dictionary;
 
+import static com.prestigeww.hermes.Utilities.HermesConstants.TEST_THREAD_TABLE;
+import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
+
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
+
 
     private ArrayList<ChatThread> chatThreads = new ArrayList<>();
     private FirebaseProxy firebaseProxy;
@@ -52,6 +57,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseUser currentAuthUser;
 
 
     @Override
@@ -63,9 +69,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
+        currentAuthUser = mFirebaseAuth.getCurrentUser();
         mAuthListener = mFirebaseAuth ->{
             try {
-                Log.e("Current User", mFirebaseAuth.getCurrentUser().getEmail());
+                Log.e("Current User", currentAuthUser.getEmail());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -77,7 +84,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         };
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
-        mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
+        mDatabaseRef = firebaseProxy.mDatabaseReference.child(TEST_THREAD_TABLE);
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -106,7 +113,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
                 super.onBindViewHolder(viewHolder, position);
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
+            @Override
                     public void onClick(View v) {
                         if (viewHolder.getIdOfThread() != null) {
                             Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
@@ -116,7 +123,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                         }
 
 
-                    }
+            }
                 });
             }
 
@@ -125,7 +132,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
                 //if(!chatIds.contains(model.getChatId())){
                     //return;
-                //}
+        //                }
                 viewHolder.bindThread(model);
             }
         };
@@ -162,45 +169,19 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 threadToAdd.setChatName(addChatNameText.getText().toString());
                 message.setBody(addMessageText.getText().toString());
                 threadToAdd.addMessageToChatThread(message);
-                String chatId;
-                chatId = firebaseProxy.postThreadToFirebase(threadToAdd);
-                dbHelper.insertChatmember(chatId);
-                chatThreads.add(threadToAdd);
+                addChat(threadToAdd);
             }
         }).show();
 
 
     }
 
-    private class GetListTask extends AsyncTask<Void,Void,Void>{
-
-        public GetListTask(){
-            super();
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            chatIds.addAll(dbHelper.getAllChatmember());
-
-            if(!chatIds.isEmpty()){
-                tempChatThreads.addAll(firebaseProxy.getChatsById(chatIds));
-                if(tempChatThreads.isEmpty()){
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            chatThreads.addAll(tempChatThreads);
-            threadListAdapter.notifyDataSetChanged();
-        }
+    public void addChat(ChatThread chatThread){
+        String chatId;
+        chatThread.addUserId(currentAuthUser.getUid());
+        chatId = firebaseProxy.postThreadToFirebase(chatThread);
+        dbHelper.insertChatmember(chatId);
+        chatThreads.add(chatThread);
     }
 
     @Override

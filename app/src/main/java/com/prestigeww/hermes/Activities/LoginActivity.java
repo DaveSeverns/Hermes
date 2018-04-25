@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -39,6 +40,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();

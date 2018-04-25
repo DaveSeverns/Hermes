@@ -78,6 +78,10 @@ public class ChatThread implements Serializable {
         this.userIds = userIds;
     }
 
+    public void addUserId(String id){
+        userIds.add(id);
+    }
+
     public User getAdmin() {
         return admin;
     }

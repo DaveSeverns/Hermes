@@ -14,10 +14,15 @@ import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 import java.util.ArrayList;
 
 public class ThreadListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
-    ArrayList<ChatThread> collection;
+    ArrayList<ChatThread> collection = new ArrayList<>();
 
-    public ThreadListAdapter(ArrayList<ChatThread> collection){
-        this.collection = collection;
+    public ThreadListAdapter(ArrayList<ChatThread> collection, ArrayList<String> ids){
+        for (ChatThread chatThread:
+                collection) {
+            if(ids.contains(chatThread.getChatId())){
+                this.collection.add(chatThread);
+            }
+        }
     }
 
     @NonNull

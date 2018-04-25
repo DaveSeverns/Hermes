@@ -44,7 +44,7 @@ public class FirebaseProxy extends HermesUtiltity {
         size = chatIds.size();
         if (usersThreads.size() != size){
             for(String id : chatIds){
-                mDatabaseReference.child("ChatThreads").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.child("chatName").getValue() != null){
@@ -72,9 +72,9 @@ public class FirebaseProxy extends HermesUtiltity {
 
 
     public String postThreadToFirebase(ChatThread chatThread){
-        String threadKey = mDatabaseReference.child("ChatThreads").push().getKey();
+        String threadKey = mDatabaseReference.child(HermesConstants.TEST_THREAD_TABLE).push().getKey();
         chatThread.setChatId(threadKey);
-        mDatabaseReference.child("ChatThreads").child(threadKey).setValue(chatThread);
+        mDatabaseReference.child(HermesConstants.TEST_THREAD_TABLE).child(threadKey).setValue(chatThread);
         return threadKey;
     }
 
