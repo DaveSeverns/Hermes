@@ -14,12 +14,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
@@ -46,7 +49,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private FloatingActionButton addChatButton;
     private LocalDbHelper dbHelper;
     private ThreadListAdapter threadListAdapter;
-    ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
+    private ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +62,19 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mAuthListener = mFirebaseAuth ->{
+            try {
+                Log.e("Current User", mFirebaseAuth.getCurrentUser().getEmail());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
+            if (mFirebaseAuth.getCurrentUser() == null){
+                Intent backToLogin = new Intent(ChatThreadFeedActivity.this, LoginActivity.class);
+                startActivity(backToLogin);
+            }
+        };
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
@@ -78,6 +96,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
         //new GetListTask().execute();
         firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
                 R.layout.thread_holder_view,
@@ -91,10 +110,11 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         if (viewHolder.getIdOfThread() != null) {
                             Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
+                            Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+                            toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
+                            startActivity(toChatWindow);
                         }
-                        Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                        toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
-                        startActivity(toChatWindow);
+
 
                     }
                 });
@@ -103,9 +123,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                if(!chatIds.contains(model.getChatId())){
-                    return;
-                }
+                //if(!chatIds.contains(model.getChatId())){
+                    //return;
+                //}
                 viewHolder.bindThread(model);
             }
         };
@@ -120,6 +140,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             new NfcUtility(this).enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
@@ -182,4 +203,32 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mFirebaseAuth.removeAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mFirebaseAuth.removeAuthStateListener(mAuthListener);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.user_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if(itemId == R.id.log_out_btn){
+            mFirebaseAuth.signOut();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

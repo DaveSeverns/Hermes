@@ -1,5 +1,7 @@
 package com.prestigeww.hermes;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.google.firebase.FirebaseApp;
@@ -19,12 +21,14 @@ public class FirebaseProxyUnitTest extends TestCase {
     private FirebaseProxy proxy;
     private ChatThread testThread;
     ArrayList<String> chatIdsTest;
+    private Context mockContext;
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        mockContext = InstrumentationRegistry.getContext();
         chatIdsTest = new ArrayList<String>();
         chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
-        proxy = new FirebaseProxy();
+        proxy = new FirebaseProxy(mockContext);
         testThread = new ChatThread();
     }
 
