@@ -58,7 +58,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
-        onCreate(db);
+        //onCreate(db);
     }
 
     public boolean insertMessage (String mid, String body, String senderid, String docid,String chatid,String time) {
@@ -180,7 +180,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             String uid=res.getString(res.getColumnIndex(USER_COLUMN_ID));
             String uname=res.getString(res.getColumnIndex(USER_COLUMN_USERNAME));
             String email=res.getString(res.getColumnIndex(USER_COLUMN_EMAIL));
-            RegisteredUser u=new RegisteredUser(uid,uname,email,true);
+            RegisteredUser u=new RegisteredUser(uid,uname,true);
             array_list.add(u);
             res.moveToNext();
         }

@@ -26,11 +26,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
@@ -65,7 +67,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
         firebaseProxy = new FirebaseProxy(this);
-
+        dbHelper = new LocalDbHelper(this);
+        chatIds = dbHelper.getAllChatmember();
+        Log.e("Chat Ids?", chatIds.get(0).toString());
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -180,6 +184,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         String chatId;
         chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
+
+        FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
         dbHelper.insertChatmember(chatId);
         chatThreads.add(chatThread);
     }
