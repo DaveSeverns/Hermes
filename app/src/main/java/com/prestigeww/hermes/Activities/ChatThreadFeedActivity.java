@@ -35,7 +35,6 @@ import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
-
 import java.util.ArrayList;
 import java.util.Dictionary;
 
@@ -192,6 +191,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.logout:
                 mFirebaseAuth.signOut();
+                new LocalDbHelper(ChatThreadFeedActivity.this).dropTables();
                 finish();
                 moveTaskToBack(true);
                 // User chose the "Settings" item, show the app settings UI...

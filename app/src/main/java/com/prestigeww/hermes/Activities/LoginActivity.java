@@ -74,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                     if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
                         mAuth.signInWithEmailAndPassword(email,password);
                         Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
+                        new LocalDbHelper(LoginActivity.this).dropTables();
                         startActivity(intent);
                     }else {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
