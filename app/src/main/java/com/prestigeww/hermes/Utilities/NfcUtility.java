@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import android.content.Context;
 
+import android.content.Context;
+
 public class NfcUtility extends HermesUtiltity {
     public NfcUtility(Context context){
         super(context);

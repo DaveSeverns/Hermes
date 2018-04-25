@@ -22,6 +22,7 @@ import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import java.util.ArrayList;
 import com.prestigeww.hermes.Utilities.HermesUtiltity;
+import com.prestigeww.hermes.Utilities.HermesUtiltity;
 
 
 public class SIgnUpActivity extends AppCompatActivity {
@@ -35,6 +36,8 @@ public class SIgnUpActivity extends AppCompatActivity {
     String uid;
     HermesUtiltity hermesUtiltity;
     FirebaseAuth mAuth;
+    HermesUtiltity hermesUtiltity;
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,7 @@ public class SIgnUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         final boolean isUpdate= getIntent().getBooleanExtra("updateAccount",false);
         final boolean updateProfile= getIntent().getBooleanExtra("updateProfile",false);
+        hermesUtiltity = new HermesUtiltity(this);
         hermesUtiltity = new HermesUtiltity(this);
         signUpButton = (Button) findViewById(R.id.signUpButton);
         nameEditText = (EditText) findViewById(R.id.nameEditText);
@@ -56,6 +60,7 @@ public class SIgnUpActivity extends AppCompatActivity {
             nameEditText.setText(arr.get(0).username);
             emailEditText.setText(arr.get(0).email);
         }
+        mAuth = FirebaseAuth.getInstance();
         //start ChatWindowActivity after click
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override

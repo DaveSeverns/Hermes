@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.os.Parcelable;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,10 +21,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
@@ -49,24 +54,22 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private LocalDbHelper dbHelper;
     private ThreadListAdapter threadListAdapter;
     ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
-        firebaseProxy = new FirebaseProxy(this);
-
+        firebaseProxy = new FirebaseProxy();
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
-
-        //chatThreads = firebaseProxy.getChatsById(chatIds);
+        chatIds.addAll(dbHelper.getAllChatmember());
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //threadListAdapter = new ThreadListAdapter(chatThreads);
-        //recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
         addChatButton.setOnClickListener(new View.OnClickListener() {
@@ -80,34 +83,13 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //new GetListTask().execute();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
-                R.layout.thread_holder_view,
-                ThreadViewHolder.class,
-                mDatabaseRef) {
-            @Override
-            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
-                super.onBindViewHolder(viewHolder, position);
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (viewHolder.getIdOfThread() != null) {
-                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
-                        }
-                        Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                        toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
-                        startActivity(toChatWindow);
-
-                    }
-                });
-            }
-
-
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread,ThreadViewHolder>
+                (ChatThread.class,
+                        R.layout.thread_holder_view,
+                        ThreadViewHolder.class,
+                        mDatabaseRef) {
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                if(!chatIds.contains(model.getChatId())){
-                    return;
-                }
                 viewHolder.bindThread(model);
             }
         };
@@ -117,29 +99,14 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     public void onNewIntent(Intent intent) {
         // onResume gets called after this to handle the intent
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            String userid= ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                    .getString("UserID",null);
-            ArrayList<String> ids=new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
-            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
-                    NfcAdapter.EXTRA_NDEF_MESSAGES);
-            // only one message sent during the beam
-            NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
-
-            // record 0 contains the MIME type, record 1 is the AAR, if present
-            String chatID=new String(msg.getRecords()[0].getPayload());
-            ids.add(chatID);
-            new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
-            Intent in = getIntent();
-            finish();
-            startActivity(in);
-        }
+        setIntent(intent);
     }
     @Override
     protected void onResume() {
         super.onResume();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            new NfcUtility().enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
-        //threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
@@ -180,6 +147,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             case R.id.logout:
                 getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                         .edit().putBoolean("SignedIn", false).commit();
+                mFirebaseAuth.signOut();
                 finish();
                 moveTaskToBack(true);
                 // User chose the "Settings" item, show the app settings UI...
@@ -243,5 +211,19 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             threadListAdapter.notifyDataSetChanged();
         }
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mFirebaseAuth.removeAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mFirebaseAuth.removeAuthStateListener(mAuthListener);
+
+    }
+
+
 }
 
