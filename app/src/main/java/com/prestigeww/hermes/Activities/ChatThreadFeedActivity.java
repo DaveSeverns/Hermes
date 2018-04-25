@@ -6,9 +6,7 @@ import android.nfc.NfcAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Parcelable;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.content.Intent;
+
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -65,7 +63,20 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         firebaseProxy = new FirebaseProxy(this);
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
-        chatIds.addAll(dbHelper.getAllChatmember());
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mAuthListener = mFirebaseAuth ->{
+            try {
+                Log.e("Current User", mFirebaseAuth.getCurrentUser().getEmail());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if (mFirebaseAuth.getCurrentUser() == null){
+                Intent backToLogin = new Intent(ChatThreadFeedActivity.this, LoginActivity.class);
+                startActivity(backToLogin);
+            }
+        };
+        //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
         chatThreads = firebaseProxy.getChatsById(chatIds);
@@ -83,11 +94,31 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread,ThreadViewHolder>
-                (ChatThread.class,
-                        R.layout.thread_holder_view,
-                        ThreadViewHolder.class,
-                        mDatabaseRef) {
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
+        //new GetListTask().execute();
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
+                R.layout.thread_holder_view,
+                ThreadViewHolder.class,
+                mDatabaseRef) {
+            @Override
+            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
+                super.onBindViewHolder(viewHolder, position);
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (viewHolder.getIdOfThread() != null) {
+                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
+                            Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+                            toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
+                            startActivity(toChatWindow);
+                        }
+
+
+                    }
+                });
+            }
+
+
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
                 viewHolder.bindThread(model);
@@ -160,8 +191,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 .getString("UserType", null);
         switch (item.getItemId()) {
             case R.id.logout:
-                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                        .edit().putBoolean("SignedIn", false).commit();
                 mFirebaseAuth.signOut();
                 finish();
                 moveTaskToBack(true);
@@ -226,6 +255,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             threadListAdapter.notifyDataSetChanged();
         }
     }
+
     @Override
     protected void onStop() {
         super.onStop();

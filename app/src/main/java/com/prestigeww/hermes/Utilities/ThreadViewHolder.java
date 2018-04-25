@@ -17,7 +17,7 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     private TextView chatMemberCount;
     private RelativeLayout circleLayout;
     static Random randomGenerator;
-    public ChatThread threadInHolder;
+    private ChatThread threadInHolder;
     public ThreadViewHolder(View itemView) {
         super(itemView);
         chatNameText = itemView.findViewById(R.id.chat_name_label);
@@ -32,7 +32,7 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
         threadInHolder = thread;
         chatNameText.setText(thread.getChatName());
         if(!thread.getUserIds().isEmpty()){
-            chatMemberCount.setText(thread.getUserIds().size());
+            chatMemberCount.setText(""+thread.getUserIds().size());
         }
         GradientDrawable sd = (GradientDrawable) circleLayout.getBackground().mutate();
         int color = (int) Long.parseLong(generateColor(), 16);

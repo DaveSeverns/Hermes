@@ -9,7 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import android.util.Log;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -58,7 +59,6 @@ public class SIgnUpActivity extends AppCompatActivity {
             nameEditText.setText(arr.get(0).username);
             emailEditText.setText(arr.get(0).email);
         }
-        mAuth = FirebaseAuth.getInstance();
         //start ChatWindowActivity after click
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,38 +67,6 @@ public class SIgnUpActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString().trim();
                 String username = nameEditText.getText().toString().trim();
                 String phoneNumber = phoneNumberEditText.getText().toString().trim();
-                if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(username)){
-                    if(hermesUtiltity.isValidEmail(email)){
-                        if (hermesUtiltity.isValidPassword(password)){
-                            RegisteredUser registeredUser=new RegisteredUser(nameEditText.getText().toString(),emailEditText.getText().toString()
-                                    ,passwordEditText.getText().toString(),true);
-                            userid=new FirebaseProxy(SIgnUpActivity.this).postRegisteredUserToFirebase(registeredUser);
-                            Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
-                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                                    .edit().putString("UserType","Registered").commit();
-                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                                    .edit().putString("UserID",userid).commit();
-                            startActivity(intent);
-                            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener( new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()){
-                                        Intent intent = new Intent(SIgnUpActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                    }else{
-                                        task.addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-
 
                 if(new FirebaseProxy(SIgnUpActivity.this).isInternetAvailable(SIgnUpActivity.this)) {
                     if(checkForEmpty()) {
@@ -111,8 +79,8 @@ public class SIgnUpActivity extends AppCompatActivity {
                                     .edit().putString("UserType", "Registered").commit();
                             getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                     .edit().putString("UserID", userid).commit();
-                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                                    .edit().putBoolean("SignedIn", true).commit();
+                            addNewUser(registeredUser,emailEditText.getText().toString()
+                                    , passwordEditText.getText().toString());
                             startActivity(intent);
                             new LocalDbHelper(SIgnUpActivity.this).insertUser(userid,nameEditText.getText().toString(),
                                     emailEditText.getText().toString());
@@ -121,8 +89,9 @@ public class SIgnUpActivity extends AppCompatActivity {
                                     , passwordEditText.getText().toString(), true);
                             userid = new FirebaseProxy(SIgnUpActivity.this).postUserUpdateToFirebase(registeredUser,uid);
                             Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
-                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                                    .edit().putBoolean("SignedIn", true).commit();
+
+                            updateUser(emailEditText.getText().toString()
+                                    , passwordEditText.getText().toString());
                             startActivity(intent);
                             new LocalDbHelper(SIgnUpActivity.this).UpdateUserData(userid,
                                     emailEditText.getText().toString(),nameEditText.getText().toString());
@@ -134,8 +103,9 @@ public class SIgnUpActivity extends AppCompatActivity {
                             Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
                             getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                     .edit().putString("UserType", "Registered").commit();
-                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                                    .edit().putBoolean("SignedIn", true).commit();
+
+                            updateUser(emailEditText.getText().toString()
+                                    , passwordEditText.getText().toString());
                             startActivity(intent);
                             new LocalDbHelper(SIgnUpActivity.this).insertUser(userid,nameEditText.getText().toString(),
                                     emailEditText.getText().toString());
@@ -158,4 +128,56 @@ public class SIgnUpActivity extends AppCompatActivity {
         }
     }
 
+    public void addNewUser(RegisteredUser registeredUser,String email,String password){
+        if(hermesUtiltity.isValidEmail(email)){
+                        if (hermesUtiltity.isValidPassword(password)){
+                            registeredUser=new RegisteredUser(nameEditText.getText().toString(),emailEditText.getText().toString()
+                                    ,passwordEditText.getText().toString(),true);
+
+                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                    .edit().putString("UserType","Registered").commit();
+                            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                    .edit().putString("UserID",userid).commit();
+
+                            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if(task.isSuccessful()){
+                                        Intent intent = new Intent(SIgnUpActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                    }else{
+                                        task.addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+        }
+    }
+    public void updateUser(String email,String password){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        user.updateEmail(email)
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d("SIgnUpActivity", "User email address updated.");
+                }
+            }
+        });
+        user.updatePassword(password)
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d("SIgnUpActivity", "User password updated.");
+                }
+            }
+        });
+    }
 }

@@ -42,16 +42,11 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();
-        boolean temp=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getBoolean("SignedIn",false);
+
         String uid=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
-        if(temp==true){
-            Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
-            startActivity(intent);
-        }
+
         hermesUtiltity = new HermesUtiltity(this);
-        mAuth = FirebaseAuth.getInstance();
         signInButton = (Button) findViewById(R.id.signInButton);
         createAccountButton = (Button) findViewById(R.id.createAccountButton);
         emailEditText = (EditText) findViewById(R.id.loginEmailEditText);
@@ -73,15 +68,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(new FirebaseProxy(LoginActivity.this).isInternetAvailable(LoginActivity.this)){
-                    Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
-                    getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                            .edit().putBoolean("SignedIn", true).commit();
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(LoginActivity.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
-                }
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
+                    String email = emailEditText.getText().toString().trim();
+                    String password = passwordEditText.getText().toString().trim();
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
                     if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
                         mAuth.signInWithEmailAndPassword(email,password);
@@ -91,6 +79,14 @@ public class LoginActivity extends AppCompatActivity {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
                     }
                 }
+
+                  //  getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                            //.edit().putBoolean("SignedIn", true).commit();
+
+                }else{
+                    Toast.makeText(LoginActivity.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
+                }
+
             }
         });
 
@@ -112,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     protected void onPause(){
