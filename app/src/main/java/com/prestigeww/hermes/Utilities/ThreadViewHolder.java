@@ -17,14 +17,19 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     private TextView chatMemberCount;
     private RelativeLayout circleLayout;
     static Random randomGenerator;
+    public ChatThread threadInHolder;
     public ThreadViewHolder(View itemView) {
         super(itemView);
         chatNameText = itemView.findViewById(R.id.chat_name_label);
         chatMemberCount = itemView.findViewById(R.id.member_count_text);
         circleLayout = itemView.findViewById(R.id.circle_shape_layout);
+
     }
 
+
+
     public void bindThread(ChatThread thread){
+        threadInHolder = thread;
         chatNameText.setText(thread.getChatName());
         if(!thread.getUserIds().isEmpty()){
             chatMemberCount.setText(thread.getUserIds().size());
@@ -34,6 +39,10 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
         sd.setColor(color);
 
         sd.invalidateSelf();
+    }
+
+    public String getIdOfThread(){
+        return threadInHolder.getChatId();
     }
 
     private static String generateColor() {

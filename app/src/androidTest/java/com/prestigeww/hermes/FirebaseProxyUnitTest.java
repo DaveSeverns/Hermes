@@ -1,5 +1,7 @@
 package com.prestigeww.hermes;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.google.firebase.FirebaseApp;
@@ -19,13 +21,14 @@ public class FirebaseProxyUnitTest extends TestCase {
     private FirebaseProxy proxy;
     private ChatThread testThread;
     ArrayList<String> chatIdsTest;
+    private Context context;
     @Before
     public void setUp() throws Exception {
         super.setUp();
         chatIdsTest = new ArrayList<String>();
-        chatIdsTest.add("-LA4BsMDbmrS_TSfq6WK");
-        chatIdsTest.add("-LA4CnonQ7XJrmMnRhmc");
-        proxy = new FirebaseProxy();
+        chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
+        context= InstrumentationRegistry.getContext();
+        proxy = new FirebaseProxy(context);
         testThread = new ChatThread();
     }
 
@@ -40,6 +43,6 @@ public class FirebaseProxyUnitTest extends TestCase {
     @Test
     public void testReadChatThreadShouldReturnNumberOfIds(){
         ArrayList<ChatThread> threadsForThisTest = new ArrayList<>(proxy.getChatsById(chatIdsTest));
-        assertEquals(2,threadsForThisTest.size());
+        assertEquals(1,threadsForThisTest.size());
     }
 }

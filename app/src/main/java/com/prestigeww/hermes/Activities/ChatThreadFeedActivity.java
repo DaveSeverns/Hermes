@@ -6,6 +6,8 @@ import android.nfc.NfcAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Parcelable;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
+import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
@@ -31,11 +34,12 @@ import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
 
-    private ArrayList<ChatThread> chatThreads;
+    private ArrayList<ChatThread> chatThreads = new ArrayList<>();
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
     private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
@@ -43,19 +47,26 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private ArrayList<String> chatIds = new ArrayList<>();
     private FloatingActionButton addChatButton;
     private LocalDbHelper dbHelper;
+    private ThreadListAdapter threadListAdapter;
+    ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
-        firebaseProxy = new FirebaseProxy();
+        firebaseProxy = new FirebaseProxy(this);
+
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
-        chatIds.addAll(dbHelper.getAllChatmember());
+
+        //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //threadListAdapter = new ThreadListAdapter(chatThreads);
+        //recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
         addChatButton.setOnClickListener(new View.OnClickListener() {
@@ -69,13 +80,34 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread,ThreadViewHolder>
-                (ChatThread.class,
-                        R.layout.thread_holder_view,
-                        ThreadViewHolder.class,
-                        mDatabaseRef) {
+        //new GetListTask().execute();
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
+                R.layout.thread_holder_view,
+                ThreadViewHolder.class,
+                mDatabaseRef) {
+            @Override
+            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
+                super.onBindViewHolder(viewHolder, position);
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (viewHolder.getIdOfThread() != null) {
+                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
+                        }
+                        Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+                        toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
+                        startActivity(toChatWindow);
+
+                    }
+                });
+            }
+
+
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
+                if(!chatIds.contains(model.getChatId())){
+                    return;
+                }
                 viewHolder.bindThread(model);
             }
         };
@@ -97,7 +129,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
             // record 0 contains the MIME type, record 1 is the AAR, if present
             String chatID=new String(msg.getRecords()[0].getPayload());
             ids.add(chatID);
-            new NfcUtility().enterChat(userid,ids);
+            new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
             Intent in = getIntent();
             finish();
             startActivity(in);
@@ -107,6 +139,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         firebaseRecyclerAdapter.notifyDataSetChanged();
+        //threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
@@ -127,6 +160,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 String chatId;
                 chatId = firebaseProxy.postThreadToFirebase(threadToAdd);
                 dbHelper.insertChatmember(chatId);
+                chatThreads.add(threadToAdd);
             }
         }).show();
     }
@@ -140,7 +174,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        String utype=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+        String utype = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserType", null);
         switch (item.getItemId()) {
             case R.id.logout:
@@ -152,16 +186,15 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 return true;
             case R.id.registeraccount:
 
-                if(!utype.equals("Registered")) {
+                if (!utype.equals("Registered")) {
                     Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
                     i.putExtra("updateAccount", true);
                     startActivity(i);
-                }else{
-                    Toast.makeText(ChatThreadFeedActivity.this,"Already Registered",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(ChatThreadFeedActivity.this, "Already Registered", Toast.LENGTH_LONG).show();
                 }
                 return true;
             case R.id.updateprofile:
-
                 if(utype.equals("Registered")) {
                     Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
                     i.putExtra("updateProfile", true);
@@ -175,6 +208,40 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
+
+
+        }
+    }
+
+    private class GetListTask extends AsyncTask<Void,Void,Void>{
+
+        public GetListTask(){
+            super();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            chatIds.addAll(dbHelper.getAllChatmember());
+
+            if(!chatIds.isEmpty()){
+                tempChatThreads.addAll(firebaseProxy.getChatsById(chatIds));
+                if(tempChatThreads.isEmpty()){
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            chatThreads.addAll(tempChatThreads);
+            threadListAdapter.notifyDataSetChanged();
         }
     }
 }
+

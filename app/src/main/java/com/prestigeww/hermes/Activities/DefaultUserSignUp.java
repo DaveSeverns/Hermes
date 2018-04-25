@@ -31,20 +31,32 @@ public class DefaultUserSignUp extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (new FirebaseProxy().isInternetAvailable(DefaultUserSignUp.this)) {
+                if(defaultuser.getText().toString().equals(null)){
+                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
+                }
+                else {
+                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(new DefaultUser(false,defaultuser.getText().toString()));
+                }
+                Intent i= new Intent(DefaultUserSignUp.this, ChatThreadFeedActivity.class);
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit().putString("UserType","Default").commit();
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit().putString("UserID",userid).commit();
+                startActivity(i);
+                if (new FirebaseProxy(DefaultUserSignUp.this).isInternetAvailable(DefaultUserSignUp.this)) {
                     if (defaultuser.getText().toString().equals("")) {
-                        userid = new FirebaseProxy().postDefaultUserToFirebase();
+                        userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
                     } else {
-                        userid = new FirebaseProxy().postDefaultUserToFirebase(new DefaultUser(false, defaultuser.getText().toString()));
+                        userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(new DefaultUser(false, defaultuser.getText().toString()));
                     }
-                    Intent i = new Intent(DefaultUserSignUp.this, ChatThreadFeedActivity.class);
+                    Intent in = new Intent(DefaultUserSignUp.this, ChatThreadFeedActivity.class);
                     getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                             .edit().putString("UserType", "Default").commit();
                     getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                             .edit().putString("UserID", userid).commit();
                     getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                             .edit().putBoolean("SignedIn", true).commit();
-                    startActivity(i);
+                    startActivity(in);
 
                 }else{
                     Toast.makeText(DefaultUserSignUp.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
