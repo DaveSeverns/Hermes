@@ -62,7 +62,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
-        firebaseProxy = new FirebaseProxy();
+        firebaseProxy = new FirebaseProxy(this);
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
         chatIds.addAll(dbHelper.getAllChatmember());
@@ -99,14 +99,29 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     public void onNewIntent(Intent intent) {
         // onResume gets called after this to handle the intent
-        setIntent(intent);
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            String userid= ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .getString("UserID",null);
+            ArrayList<String> ids=new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
+            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
+                    NfcAdapter.EXTRA_NDEF_MESSAGES);
+            // only one message sent during the beam
+            NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
+
+            // record 0 contains the MIME type, record 1 is the AAR, if present
+            String chatID=new String(msg.getRecords()[0].getPayload());
+            ids.add(chatID);
+            new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
+            Intent in = getIntent();
+            finish();
+            startActivity(in);
+        }
     }
     @Override
     protected void onResume() {
         super.onResume();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility().enterChat(getIntent());        }
         firebaseRecyclerAdapter.notifyDataSetChanged();
+        //threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){

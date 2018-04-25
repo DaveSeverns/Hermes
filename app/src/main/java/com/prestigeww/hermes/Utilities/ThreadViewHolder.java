@@ -18,7 +18,6 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     private RelativeLayout circleLayout;
     static Random randomGenerator;
     public ChatThread threadInHolder;
-    private ChatThread threadInHolder;
     public ThreadViewHolder(View itemView) {
         super(itemView);
         chatNameText = itemView.findViewById(R.id.chat_name_label);

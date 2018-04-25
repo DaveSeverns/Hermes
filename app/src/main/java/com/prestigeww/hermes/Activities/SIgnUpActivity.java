@@ -36,8 +36,6 @@ public class SIgnUpActivity extends AppCompatActivity {
     String uid;
     HermesUtiltity hermesUtiltity;
     FirebaseAuth mAuth;
-    HermesUtiltity hermesUtiltity;
-    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

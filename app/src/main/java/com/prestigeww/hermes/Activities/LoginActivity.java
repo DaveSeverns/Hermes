@@ -91,19 +91,6 @@ public class LoginActivity extends AppCompatActivity {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
                     }
                 }
-
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-                if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
-                    if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
-                        mAuth.signInWithEmailAndPassword(email,password);
-                        Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
-                        startActivity(intent);
-                    }else {
-                        hermesUtiltity.showToast("Enter a valid Email or Password");
-                    }
-                }
-
             }
         });
 
