@@ -65,6 +65,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
+        onCreate(db);
         return true;
     }
 

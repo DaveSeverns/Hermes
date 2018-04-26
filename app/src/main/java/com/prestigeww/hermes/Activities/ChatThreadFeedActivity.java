@@ -3,7 +3,6 @@ package com.prestigeww.hermes.Activities;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Parcelable;
 
@@ -19,21 +18,19 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
-import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -53,6 +50,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    boolean[] contains;
+    Query q;
+    String UID;
 
 
     @Override
@@ -80,14 +80,16 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         addChatButton = findViewById(R.id.add_new_chat_button);
+        UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserID",null);
         addChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addChatAlert();
             }
         });
+
     }
 
     @Override
@@ -117,18 +119,25 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 });
             }
 
-
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
                 viewHolder.bindThread(model);
             }
         };
         recyclerView.setAdapter(firebaseRecyclerAdapter);
+       // recyclerView.findViewHolderForItemId(2);
+
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         // onResume gets called after this to handle the intent
+        setIntent(intent);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firebaseRecyclerAdapter.notifyDataSetChanged();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             String userid= ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                     .getString("UserID",null);
@@ -140,17 +149,16 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
 
             // record 0 contains the MIME type, record 1 is the AAR, if present
             String chatID=new String(msg.getRecords()[0].getPayload());
-            ids.add(chatID);
-            new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
-            Intent in = getIntent();
-            finish();
-            startActivity(in);
+
+            if(ids.contains(chatID)){
+                Log.e("NFC recieved","already a member");
+            }else {
+                ids.add(chatID);
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
+                Log.e("NFC recieved", chatID);
+            }
         }
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        firebaseRecyclerAdapter.notifyDataSetChanged();
         //threadListAdapter.notifyDataSetChanged();
     }
 
@@ -169,6 +177,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 threadToAdd.setChatName(addChatNameText.getText().toString());
                 message.setBody(addMessageText.getText().toString());
                 threadToAdd.addMessageToChatThread(message);
+                threadToAdd.setAdmin(UID);
                 String chatId;
                 chatId = firebaseProxy.postThreadToFirebase(threadToAdd);
                 dbHelper.insertChatmember(chatId);

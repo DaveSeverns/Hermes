@@ -8,7 +8,7 @@ public class ChatThread implements Serializable {
 
     private String chatId;
     private ArrayList<String> userIds;
-    private User admin;
+    private String admin;
     private String chatName;
     private ArrayList<MessageInChat> messages;
 
@@ -20,7 +20,7 @@ public class ChatThread implements Serializable {
         messages = new ArrayList<MessageInChat>();
     }
 
-    public ChatThread(String chatId, User admin, String chatName){
+    public ChatThread(String chatId, String admin, String chatName){
         this.chatId = chatId;
         this.admin = admin;
         this.chatName = chatName;
@@ -78,11 +78,11 @@ public class ChatThread implements Serializable {
         this.userIds = userIds;
     }
 
-    public User getAdmin() {
+    public String getAdmin() {
         return admin;
     }
 
-    public void setAdmin(User admin) {
+    public void setAdmin(String admin) {
         this.admin = admin;
     }
 
