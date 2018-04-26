@@ -29,6 +29,7 @@ import org.w3c.dom.Text;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import co.intentservice.chatui.ChatView;
@@ -49,8 +50,13 @@ public class ChatWindowActivity extends AppCompatActivity {
 
     MessageInChat messageInChat;
     List<MessageInChat> messages = new ArrayList<>();
+    List<MessageInChat> originalMessageList = new ArrayList<>();
+
     String chatId;
     List<String> messagesToAdd = new ArrayList<>();
+    HashMap<String, Object> hashMap = new HashMap<>();
+    int i = 0;
+
 
 
     @Override
@@ -70,34 +76,42 @@ public class ChatWindowActivity extends AppCompatActivity {
         //messages= getMessagesFromFirebase();
         //Log.d("TestingFromFirebase: ", messages.toString());
 
+
         sendbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayMessages();
+
+                //Retrieve all the data from the database and update
+
+                Log.d("messagesFromFirebase", messages.toString());
+                //set body of messageInChat object from editText and add to listView
+                messageInChat = new MessageInChat(Integer.toString(i++), chatId, messageEditText.getText().toString(), "sender");
+               // messageInChat.setBody(messageEditText.getText().toString());
+
+                messages.add(messageInChat);
+                Log.d("messages list: ", messages.toString());
+
+                originalMessageList.addAll(messages);
+                hashMap.put("messages", originalMessageList);
+
+                //get to right position as needed to send and receive message updates
+                mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
+                DatabaseReference chatThread = mDatabaseReference.child(chatId);
+                chatThread.updateChildren(hashMap);
+
+
+
+                // DatabaseReference messageList = chatThread.child("messages");
+
+                // get list of messages currently in "message list"
+                // append MessageInChat objects to list of messages retrieved
+                // update chat thread with entire list
+
+                // .updateChildren(hashMap);
+                // messages.clear();
             }
         });
 
-    }
-
-    public void displayMessages(){
-
-        String chatName = "test";
-        final String messageId = "testMessage";
-        String body = "This is a test message";
-        String sender = "-LAQlcdVIByjfJ7zI2Hr";
-
-        messages = getMessagesFromFirebase();
-
-        //set body of messageInChat object from editText and add to listView
-        messageInChat = new MessageInChat();
-        messageInChat.setBody(messageEditText.getText().toString());
-        messages.add(messageInChat);
-        Log.d("messages list: ", messages.toString());
-
-        //get to right position as needed to send and receive message updates
-        mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
-        mDatabaseReference.child(chatId).child("messages").setValue(messages);
-       // messages.clear();
     }
 
     @Override
@@ -112,17 +126,29 @@ public class ChatWindowActivity extends AppCompatActivity {
             @Override
             protected void populateView(View v, MessageInChat model, int position) {
                 TextView textView = (TextView)v.findViewById(R.id.textViewForChat);
-                messagesToAdd.add(model.getBody());
-                Log.d("messagesToAdd: ", messagesToAdd.toString());
+
+                // add check to see if a message with this ID is already present in the list
+                // if not, add it to the list
+                int j = 0;
+              //  Log.d("message ids", model.getMessageId());
+                if( model.getMessageId() != null && Integer.parseInt(model.getMessageId()) != j){
+                    originalMessageList.add(model);
+                   // textView.setText(model.getBody());
+                    Log.d("model.getBody", model.getBody());
+
+                }
+
+               // originalMessageList.add(model);
+                // Log.d("messagesToAdd: ", messagesToAdd.toString());
                 textView.setText(model.getBody());
-                Log.d("model.getBody", model.getBody());
+               // Log.d("model.getBody", model.getBody());
             }
         };
         listViewOfMessages.setAdapter(firebaseListAdapter);
 
     }
 
-    public List<MessageInChat> getMessagesFromFirebase(){
+ /*   public List<MessageInChat> getMessagesFromFirebase(){
         final GenericTypeIndicator<List<MessageInChat>> storedMessages = new GenericTypeIndicator<List<MessageInChat>>();
         //final List<MessageInChat>[] messages = {new ArrayList<>()};
         final List<String> mes = new ArrayList<>();
@@ -150,6 +176,7 @@ public class ChatWindowActivity extends AppCompatActivity {
 
         return messages;
     }
+*/
 
 
 }

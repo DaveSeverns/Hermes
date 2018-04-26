@@ -27,18 +27,11 @@ import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class ChatThreadFeedActivity extends AppCompatActivity {
-
-    private String mansNotHot;
-    private String BigShaq = "Mans Never Hot";
-
-    //Testing Krati
-
-    public String getBigShaq() {
-        return BigShaq;
-    }
 
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
