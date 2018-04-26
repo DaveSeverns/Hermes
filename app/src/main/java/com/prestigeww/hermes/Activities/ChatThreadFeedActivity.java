@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,8 +26,10 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
@@ -39,15 +42,16 @@ import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Timer;
 
 import static com.prestigeww.hermes.Utilities.HermesConstants.TEST_THREAD_TABLE;
 import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 
-public class ChatThreadFeedActivity extends AppCompatActivity {
+public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface {
 
 
-    private ArrayList<ChatThread> chatThreads = new ArrayList<>();
+    private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
     private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
@@ -69,7 +73,12 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         firebaseProxy = new FirebaseProxy(this);
         dbHelper = new LocalDbHelper(this);
         chatIds = dbHelper.getAllChatmember();
-        Log.e("Chat Ids?", chatIds.get(0).toString());
+        chatThreads = new ArrayList<>();
+        getChatsById();
+        SystemClock.sleep(500);
+        //Log.e("Chat Ids?", chatIds.get(0).toString());
+
+        firebaseProxy.getChatsById(chatIds,this);
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -89,11 +98,11 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child(TEST_THREAD_TABLE);
-        chatThreads = firebaseProxy.getChatsById(chatIds);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //threadListAdapter = new ThreadListAdapter(chatThreads);
-        //recyclerView.setAdapter(threadListAdapter);
+        threadListAdapter = new ThreadListAdapter(chatThreads);
+        recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
         addChatButton.setOnClickListener(new View.OnClickListener() {
@@ -107,40 +116,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthListener);
-        //new GetListTask().execute();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
-                R.layout.thread_holder_view,
-                ThreadViewHolder.class,
-                mDatabaseRef) {
-            @Override
-            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
-                super.onBindViewHolder(viewHolder, position);
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-                    public void onClick(View v) {
-                        if (viewHolder.getIdOfThread() != null) {
-                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
-                            Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                            toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
-                            startActivity(toChatWindow);
-                        }
 
 
-            }
-                });
-            }
-
-
-            @Override
-            protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                //if(!chatIds.contains(model.getChatId())){
-                    //return;
-        //                }
-                viewHolder.bindThread(model);
-            }
-        };
-        recyclerView.setAdapter(firebaseRecyclerAdapter);
     }
 
     @Override
@@ -154,8 +131,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthListener);
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             new NfcUtility(this).enterChat(getIntent());        }
-        firebaseRecyclerAdapter.notifyDataSetChanged();
-        //threadListAdapter.notifyDataSetChanged();
+        //firebaseRecyclerAdapter.notifyDataSetChanged();
+        threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
@@ -185,7 +162,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
-        FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
+        //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
         dbHelper.insertChatmember(chatId);
         chatThreads.add(chatThread);
     }
@@ -222,4 +199,40 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
     }
+
+
+    public void getChatsById(){
+        final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
+        for(String id : chatIds){
+                FirebaseDatabase.getInstance().getReference().child(HermesConstants.THREAD_TABLE).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(chatIds.contains(dataSnapshot.child("chatId").getValue()) ){
+                            String chatName = dataSnapshot.child("chatName").getValue().toString();
+                            String chatId = dataSnapshot.child("chatId").getValue().toString();
+                            ChatThread threadToAdd = new ChatThread(chatId,chatName);
+                            chatThreads.add(threadToAdd);
+                            threadListAdapter.notifyDataSetChanged();
+                            //firebaseProxyInterface.getChatThread(threadToAdd);
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("FB error: ", databaseError.getDetails());
+                    }
+                });
+            }
+        }
+
+    @Override
+    public void getChatThread(ChatThread thread) {
+        chatThreads.add(thread);
+        threadListAdapter.notifyDataSetChanged();
+    }
+
+    //return usersThreads;
 }
+
