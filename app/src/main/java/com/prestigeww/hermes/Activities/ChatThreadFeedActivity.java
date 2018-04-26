@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.Parcelable;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -103,9 +104,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 R.layout.thread_holder_view,
                 ThreadViewHolder.class,
                 mDatabaseRef) {
+
+
             @Override
             public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
-                super.onBindViewHolder(viewHolder, position);
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -121,14 +123,12 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 });
             }
 
-
             @Override
             protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                //if(!chatIds.contains(model.getChatId())){
-                    //return;
-                //}
                 viewHolder.bindThread(model);
             }
+
+
         };
         recyclerView.setAdapter(firebaseRecyclerAdapter);
     }
