@@ -1,6 +1,7 @@
 package com.prestigeww.hermes.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.content.Context;
@@ -24,6 +25,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -54,6 +57,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    int chatSize;
+    private FirebaseRecyclerOptions<ChatThread> mOptions;
 
 
     @Override
@@ -63,6 +68,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         firebaseProxy = new FirebaseProxy(this);
         recyclerView = findViewById(R.id.chat_recycler_view);
         dbHelper =  new LocalDbHelper(this);
+        chatIds.addAll(dbHelper.getAllChatmember());
+        chatSize = chatIds.size();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = mFirebaseAuth ->{
             try {
@@ -79,6 +86,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
         mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
+        mOptions = new FirebaseRecyclerOptions.Builder<ChatThread>().setQuery(mDatabaseRef,ChatThread.class).build();
+        Log.e("Options", mOptions.toString());
         chatThreads = firebaseProxy.getChatsById(chatIds);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -95,64 +104,40 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mFirebaseAuth.addAuthStateListener(mAuthListener);
+        SharedPreferences pref = getSharedPreferences("PREFERENCE",MODE_PRIVATE);
+        String uID = pref.getString("UserID",null);
+
         //new GetListTask().execute();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
-                R.layout.thread_holder_view,
-                ThreadViewHolder.class,
-                mDatabaseRef) {
-            @Override
-            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
-                super.onBindViewHolder(viewHolder, position);
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (viewHolder.getIdOfThread() != null) {
-                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
-                            Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                            toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
-                            startActivity(toChatWindow);
-                        }
-
-
-                    }
-                });
-            }
-
-
-            @Override
-            protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                viewHolder.bindThread(model);
-            }
-        };
-        recyclerView.setAdapter(firebaseRecyclerAdapter);
+        threadListAdapter = new ThreadListAdapter(mOptions,true,uID);
+        recyclerView.setAdapter(threadListAdapter);
     }
 
     @Override
     public void onNewIntent(Intent intent) {
+        Log.e("Getting Intent", intent.getAction().toString());
         // onResume gets called after this to handle the intent
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
             String userid= ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                     .getString("UserID",null);
-            ArrayList<String> ids=new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
-            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
+            //ArrayList<String> ids=new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
                     NfcAdapter.EXTRA_NDEF_MESSAGES);
             // only one message sent during the beam
             NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
 
             // record 0 contains the MIME type, record 1 is the AAR, if present
             String chatID=new String(msg.getRecords()[0].getPayload());
-            ids.add(chatID);
-            new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
-            Intent in = getIntent();
-            finish();
-            startActivity(in);
+            Log.e("Chat Id from intent", chatID);
+            //ids.add(chatID);
+            //new FirebaseProxy(this).postChatIDInUserToFirebase(ids,userid);
+
         }
     }
     @Override
     protected void onResume() {
         super.onResume();
-        firebaseRecyclerAdapter.notifyDataSetChanged();
-        //threadListAdapter.notifyDataSetChanged();
+        //firebaseRecyclerAdapter.notifyDataSetChanged();
+        threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert(){
@@ -225,36 +210,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         }
     }
 
-    private class GetListTask extends AsyncTask<Void,Void,Void>{
 
-        public GetListTask(){
-            super();
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            chatIds.addAll(dbHelper.getAllChatmember());
-
-            if(!chatIds.isEmpty()){
-                tempChatThreads.addAll(firebaseProxy.getChatsById(chatIds));
-                if(tempChatThreads.isEmpty()){
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            chatThreads.addAll(tempChatThreads);
-            threadListAdapter.notifyDataSetChanged();
-        }
-    }
 
     @Override
     protected void onStop() {

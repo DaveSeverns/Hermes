@@ -20,10 +20,12 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
     ChatView chatView;
     NfcAdapter mNfcAdapter;
+    private String chatIdFromIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
+        chatIdFromIntent = getIntent().getStringExtra("chat_id");
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
@@ -44,12 +46,13 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     }
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getString("UserID",null);
-        Toast.makeText(ChatWindowActivity.this,"chatID for NDEF:"+ cID,Toast.LENGTH_LONG).show();
+
+
         NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMime("application/edu.temple.hermes",cID.getBytes())}
+                new NdefRecord[] { createMime("application/edu.temple.hermes",chatIdFromIntent.getBytes())}
         );
         return msg;
     }
+
+
 }
