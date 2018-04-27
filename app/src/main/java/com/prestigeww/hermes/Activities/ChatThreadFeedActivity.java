@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -58,7 +57,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
-    private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
     private DatabaseReference mDatabaseRef;
     private ArrayList<String> chatIds = new ArrayList<>();
     private FloatingActionButton addChatButton;
@@ -133,11 +131,13 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     @Override
     protected void onResume() {
         super.onResume();
-        //firebaseRecyclerAdapter.notifyDataSetChanged();
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
+        threadListAdapter.notifyDataSetChanged();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            new NfcUtility(this).enterChat("",new ArrayList<>());
             String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                     .getString("UserID", null);
-            ArrayList<String> ids = new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
+            ArrayList<String> ids = dbHelper.getAllChatmember();
             Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
                     NfcAdapter.EXTRA_NDEF_MESSAGES);
             // only one message sent during the beam
@@ -157,8 +157,13 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 startActivity(badIntent);
             }
         }
-        //threadListAdapter.notifyDataSetChanged();
+        //firebaseRecyclerAdapter.notifyDataSetChanged();
+
+
+        threadListAdapter.notifyDataSetChanged();
     }
+
+
 
     protected void addChatAlert() {
 
@@ -185,8 +190,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
     public void addChat(ChatThread chatThread) {
         String chatId;
-
-        //chatThread.addUserId(currentAuthUser.getUid());
+        chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
         //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);

@@ -108,4 +108,7 @@ public class ChatThread implements Serializable {
     }
 
 
+    public void addUserId(String uid) {
+        userIds.add(uid);
+    }
 }
