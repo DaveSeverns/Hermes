@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.089"
-        app:srcCompat="@drawable/hermes_logo" />
+        app:srcCompat="@drawable/hermes" />
 
     <EditText
         android:id="@+id/loginEmailEditText"

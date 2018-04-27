@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.SignUpActivity">
+    tools:context=".Activities.SIgnUpActivity">
 
     <ImageView
         android:id="@+id/imageView2"
@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023"
-        app:srcCompat="@drawable/hermes_logo" />
+        app:srcCompat="@drawable/hermes2" />
 
     <EditText
         android:id="@+id/nameEditText"
