@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -58,7 +57,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
-    private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
     private DatabaseReference mDatabaseRef;
     private ArrayList<String> chatIds = new ArrayList<>();
     private FloatingActionButton addChatButton;
