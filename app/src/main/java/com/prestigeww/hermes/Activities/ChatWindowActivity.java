@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -73,43 +74,42 @@ public class ChatWindowActivity extends AppCompatActivity {
         Toast.makeText(ChatWindowActivity.this, chatId, Toast.LENGTH_SHORT).show();
         Log.d("chatSelectedInWindow", chatId);
 
-        //messages= getMessagesFromFirebase();
-        //Log.d("TestingFromFirebase: ", messages.toString());
-
-
         sendbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 //Retrieve all the data from the database and update
                 //set body of messageInChat object from editText and add to listView
-                messageInChat = new MessageInChat(Integer.toString(i++), chatId, messageEditText.getText().toString(), "sender");
-               // messageInChat.setBody(messageEditText.getText().toString());
 
-                messages.add(messageInChat);
-                Log.d("messages list: ", messages.toString());
+                //generate UUID for message ID
 
-               // originalMessageList.clear();
-                originalMessageList.addAll(messages);
-               // hashMap.put("messages", originalMessageList);
+                UUID uuid = UUID.randomUUID();
+                String randomUUID = uuid.toString();
+                messageInChat = new MessageInChat(randomUUID, chatId, messageEditText.getText().toString(), "sender");
+                originalMessageList.add(messageInChat);
 
-                hashMap.put("messages", messages);
+                //messages.add(messageInChat);
+                //Log.d("messages list: ", messages.toString());
+
+                // originalMessageList.addAll(messages);
+
+                hashMap.put("messages", originalMessageList);
 
                 //get to right position as needed to send and receive message updates
                 mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
                 DatabaseReference chatThread = mDatabaseReference.child(chatId);
                 chatThread.updateChildren(hashMap);
 
+                // get rid of old message list contents so that when we populate views again, we don't have duplicates
+                originalMessageList = new ArrayList<>();
 
 
-                // DatabaseReference messageList = chatThread.child("messages");
+
 
                 // get list of messages currently in "message list"
                 // append MessageInChat objects to list of messages retrieved
                 // update chat thread with entire list
 
-                // .updateChildren(hashMap);
-                // messages.clear();
             }
         });
 
@@ -124,25 +124,18 @@ public class ChatWindowActivity extends AppCompatActivity {
 
         //set firebaselistAdapter for changes
         firebaseListAdapter = new FirebaseListAdapter<MessageInChat>(this, MessageInChat.class, R.layout.textview_for_listview, mDatabaseReference) {
+
             @Override
             protected void populateView(View v, MessageInChat model, int position) {
+
+                // this method gets called for every record in the chat messages list
+                // it gets called again ASYNCHRONOUSLY when a new message is added from another device
+                Log.e("Firebase", "Received model with message: "
+                        + model.getBody() + ", and ID: " + model.getMessageId());
+
                 TextView textView = (TextView)v.findViewById(R.id.textViewForChat);
-
-                // add check to see if a message with this ID is already present in the list
-                // if not, add it to the list
-                int j = 0;
-              //  Log.d("message ids", model.getMessageId());
-                if( model.getMessageId() != null && Integer.parseInt(model.getMessageId()) != j){
-                    originalMessageList.add(model);
-                   // textView.setText(model.getBody());
-                    Log.d("model.getBody", model.getBody());
-
-                }
-
-               // originalMessageList.add(model);
-                // Log.d("messagesToAdd: ", messagesToAdd.toString());
+                originalMessageList.add(model);
                 textView.setText(model.getBody());
-               // Log.d("model.getBody", model.getBody());
             }
         };
         listViewOfMessages.setAdapter(firebaseListAdapter);
