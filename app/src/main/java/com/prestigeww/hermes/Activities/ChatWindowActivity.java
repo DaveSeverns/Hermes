@@ -5,6 +5,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,10 +18,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
+
+import java.util.ArrayList;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -99,14 +101,14 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 }
                 return true;
             case R.id.exitchat:
-                if(utype.equals("Registered")) {
-                    Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
-                    i.putExtra("updateProfile", true);
-                    startActivity(i);
-                    Toast.makeText(ChatWindowActivity.this,"will update profile",Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(ChatWindowActivity.this,"Please Register Your Account",Toast.LENGTH_LONG).show();
-                }
+                String userid= ChatWindowActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .getString("UserID",null);
+                int del=new LocalDbHelper((ChatWindowActivity.this)).deleteChatmember(CID);
+                Log.e("Deleted chat local",""+del);
+                ArrayList<String> ids=new LocalDbHelper(ChatWindowActivity.this).getAllChatmember();
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
+                startActivity(i);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -125,6 +127,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                    adminbool=false;
                    if(dataSnapshot.child("admin").getValue().toString() != null) {
                        String admin = dataSnapshot.child("admin").getValue().toString();
                        if (admin.equals(UID))
@@ -137,6 +140,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 Log.e("FB error: ", databaseError.getDetails());
             }
         });
+        SystemClock.sleep(1000);
         return adminbool;
 
     }
