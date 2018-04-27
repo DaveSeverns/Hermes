@@ -110,11 +110,15 @@ public class FirebaseProxy extends HermesUtiltity {
         return uid;
     }
     public void postChatIDInUserToFirebase(ArrayList<String> chatID,String UserID){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
        //String Ids= mDatabaseReference.child("User").child(UserID).child("ChatID").getKey();
         //new LocalDbHelper().getAllChatmember()
-        Log.e("chat id that i got","jhjsgzfj");
         mDatabaseReference.child("User").child(UserID).child("ChatID").setValue(chatID);
+    }
+    public boolean deleteChatThread(String CID){
+
+            mDatabaseReference.child("ChatThreads").child(CID).removeValue();
+            return true;
+
     }
     public boolean isInternetAvailable(Context context) {
         ConnectivityManager cm =
