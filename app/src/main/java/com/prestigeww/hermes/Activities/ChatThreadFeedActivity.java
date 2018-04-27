@@ -82,7 +82,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
         firebaseProxy.getChatsById(chatIds, this);
         recyclerView = findViewById(R.id.chat_recycler_view);
-        dbHelper = new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
         currentAuthUser = mFirebaseAuth.getCurrentUser();
         mAuthListener = mFirebaseAuth -> {
@@ -153,7 +152,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 Log.e("NFC recieved", chatID);
             }
         }
-        //threadListAdapter.notifyDataSetChanged();
+        threadListAdapter.notifyDataSetChanged();
     }
 
     protected void addChatAlert() {
@@ -181,7 +180,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     public void addChat(ChatThread chatThread) {
         String chatId;
 
-        //chatThread.addUserId(currentAuthUser.getUid());
+        chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
         //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
