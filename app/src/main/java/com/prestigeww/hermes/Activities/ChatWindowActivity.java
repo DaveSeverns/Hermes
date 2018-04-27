@@ -82,8 +82,6 @@ public class ChatWindowActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Retrieve all the data from the database and update
-
-                Log.d("messagesFromFirebase", messages.toString());
                 //set body of messageInChat object from editText and add to listView
                 messageInChat = new MessageInChat(Integer.toString(i++), chatId, messageEditText.getText().toString(), "sender");
                // messageInChat.setBody(messageEditText.getText().toString());
@@ -91,8 +89,11 @@ public class ChatWindowActivity extends AppCompatActivity {
                 messages.add(messageInChat);
                 Log.d("messages list: ", messages.toString());
 
+               // originalMessageList.clear();
                 originalMessageList.addAll(messages);
-                hashMap.put("messages", originalMessageList);
+               // hashMap.put("messages", originalMessageList);
+
+                hashMap.put("messages", messages);
 
                 //get to right position as needed to send and receive message updates
                 mDatabaseReference = firebaseProxy.mDatabaseReference.child("ChatThreads");
