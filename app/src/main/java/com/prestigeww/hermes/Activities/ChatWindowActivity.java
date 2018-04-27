@@ -6,6 +6,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.prestigeww.hermes.R;
@@ -25,6 +26,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         chatIdFromIntent = getIntent().getStringExtra("chat_id");
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
