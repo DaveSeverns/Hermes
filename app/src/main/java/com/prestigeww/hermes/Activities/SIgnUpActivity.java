@@ -36,7 +36,6 @@ public class SIgnUpActivity extends AppCompatActivity {
     Button signUpButton;
     EditText nameEditText;
     EditText emailEditText;
-    EditText phoneNumberEditText;
     EditText passwordEditText;
     String userid;
     String uid;
@@ -56,7 +55,6 @@ public class SIgnUpActivity extends AppCompatActivity {
         signUpButton = (Button) findViewById(R.id.signUpButton);
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         emailEditText = (EditText) findViewById(R.id.emailSignUpEditText);
-        phoneNumberEditText = (EditText) findViewById(R.id.phoneNumberEditText);
         passwordEditText = (EditText) findViewById(R.id.passwordSignUpEditText);
         mAuth = FirebaseAuth.getInstance();
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
@@ -74,8 +72,6 @@ public class SIgnUpActivity extends AppCompatActivity {
                 String email = emailEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
                 String username = nameEditText.getText().toString().trim();
-                String phoneNumber = phoneNumberEditText.getText().toString().trim();
-
                 if(new FirebaseProxy(SIgnUpActivity.this).isInternetAvailable(SIgnUpActivity.this)) {
                     if(checkForEmpty()) {
                         if(!isUpdate && !updateProfile) {
@@ -129,12 +125,10 @@ public class SIgnUpActivity extends AppCompatActivity {
     }
 
     private boolean checkForEmpty(){
-        if(passwordEditText.getText().equals(null) || nameEditText.getText().equals(null)|| emailEditText.getText().equals(null)){
-            return false;
-        }else{
-            return true;
-        }
-    }
+        return passwordEditText.getText() != null &&
+                   nameEditText.getText() != null &&
+                  emailEditText.getText() != null;
+    }//end check for empty
 
     public void addNewUser(RegisteredUser registeredUser,String email,String password){
         if(hermesUtiltity.isValidEmail(email)){
