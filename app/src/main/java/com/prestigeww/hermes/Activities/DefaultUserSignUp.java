@@ -44,12 +44,7 @@ public class DefaultUserSignUp extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(defaultuser.getText().toString().equals(null)){
-                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
-                }
-                else {
-                    userid=new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(new DefaultUser(false,defaultuser.getText().toString()));
-                }
+
 
                 if (new FirebaseProxy(DefaultUserSignUp.this).isInternetAvailable(DefaultUserSignUp.this)) {
                     if (defaultuser.getText().toString().equals("")) {

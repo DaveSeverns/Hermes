@@ -206,7 +206,6 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             String uname=res.getString(res.getColumnIndex(USER_COLUMN_USERNAME));
             String email=res.getString(res.getColumnIndex(USER_COLUMN_EMAIL));
             RegisteredUser u=new RegisteredUser(uname,email,"",true);
-
             array_list.add(u);
             res.moveToNext();
         }

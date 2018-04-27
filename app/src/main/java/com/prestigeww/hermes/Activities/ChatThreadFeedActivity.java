@@ -82,19 +82,19 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         SystemClock.sleep(500);
         //Log.e("Chat Ids?", chatIds.get(0).toString());
 
-        firebaseProxy.getChatsById(chatIds,this);
+        firebaseProxy.getChatsById(chatIds, this);
         recyclerView = findViewById(R.id.chat_recycler_view);
-        dbHelper =  new LocalDbHelper(this);
+        dbHelper = new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
         currentAuthUser = mFirebaseAuth.getCurrentUser();
-        mAuthListener = mFirebaseAuth ->{
+        mAuthListener = mFirebaseAuth -> {
             try {
                 Log.e("Current User", currentAuthUser.getEmail());
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if (mFirebaseAuth.getCurrentUser() == null){
+            if (mFirebaseAuth.getCurrentUser() == null) {
                 Intent backToLogin = new Intent(ChatThreadFeedActivity.this, LoginActivity.class);
                 startActivity(backToLogin);
             }
@@ -105,7 +105,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        threadListAdapter = new ThreadListAdapter(chatThreads,this);
+        threadListAdapter = new ThreadListAdapter(chatThreads, this);
         recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
@@ -129,20 +129,39 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         // onResume gets called after this to handle the intent
         setIntent(intent);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthListener);
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility(this).enterChat(getIntent());        }
         //firebaseRecyclerAdapter.notifyDataSetChanged();
-        threadListAdapter.notifyDataSetChanged();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .getString("UserID", null);
+            ArrayList<String> ids = new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
+            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
+                    NfcAdapter.EXTRA_NDEF_MESSAGES);
+            // only one message sent during the beam
+            NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
+
+            // record 0 contains the MIME type, record 1 is the AAR, if present
+            String chatID = new String(msg.getRecords()[0].getPayload());
+
+            if (ids.contains(chatID)) {
+                Log.e("NFC recieved", "already a member");
+            } else {
+                ids.add(chatID);
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
+                Log.e("NFC recieved", chatID);
+            }
+        }
+        //threadListAdapter.notifyDataSetChanged();
     }
 
-    protected void addChatAlert(){
+    protected void addChatAlert() {
 
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_chat_dialog_box,null);
+        View dialogView = inflater.inflate(R.layout.add_chat_dialog_box, null);
         final EditText addChatNameText = dialogView.findViewById(R.id.chat_name_edit_text);
         final EditText addMessageText = dialogView.findViewById(R.id.first_message_edit_text);
         new AlertDialog.Builder(this).setTitle("Add New Chat?")
@@ -161,9 +180,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
     }
 
-    public void addChat(ChatThread chatThread){
+    public void addChat(ChatThread chatThread) {
         String chatId;
-        chatThread.addUserId(currentAuthUser.getUid());
+
+        //chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
         //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
@@ -187,50 +207,42 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.user_menu,menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if(itemId == R.id.log_out_btn){
-            mFirebaseAuth.signOut();
-        }
 
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onBackPressed() {
     }
 
 
-    public void getChatsById(){
+    public void getChatsById() {
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
-        for(String id : chatIds){
-                FirebaseDatabase.getInstance().getReference().child(HermesConstants.THREAD_TABLE).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(chatIds.contains(dataSnapshot.child("chatId").getValue()) ){
-                            String chatName = dataSnapshot.child("chatName").getValue().toString();
-                            String chatId = dataSnapshot.child("chatId").getValue().toString();
-                            ChatThread threadToAdd = new ChatThread(chatId,chatName);
-                            chatThreads.add(threadToAdd);
-                            threadListAdapter.notifyDataSetChanged();
-                            //firebaseProxyInterface.getChatThread(threadToAdd);
-                        }
-
-
+        for (String id : chatIds) {
+            FirebaseDatabase.getInstance().getReference().child(HermesConstants.THREAD_TABLE).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (chatIds.contains(dataSnapshot.child("chatId").getValue())) {
+                        String chatName = dataSnapshot.child("chatName").getValue().toString();
+                        String chatId = dataSnapshot.child("chatId").getValue().toString();
+                        ChatThread threadToAdd = new ChatThread(chatId, chatName);
+                        chatThreads.add(threadToAdd);
+                        threadListAdapter.notifyDataSetChanged();
+                        //firebaseProxyInterface.getChatThread(threadToAdd);
                     }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e("FB error: ", databaseError.getDetails());
-                    }
-                });
-            }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("FB error: ", databaseError.getDetails());
+                }
+            });
         }
+    }
 
     @Override
     public void getChatThread(ChatThread thread) {
@@ -244,3 +256,45 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         chatWindowIntent.putExtra("chat_id", chatId);
         startActivity(chatWindowIntent);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String utype = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserType", null);
+        switch (item.getItemId()) {
+            case R.id.logout:
+                mFirebaseAuth.signOut();
+                new LocalDbHelper(ChatThreadFeedActivity.this).dropTables();
+                finish();
+                moveTaskToBack(true);
+                // User chose the "Settings" item, show the app settings UI...
+                return true;
+            case R.id.registeraccount:
+
+                if (!utype.equals("Registered")) {
+                    Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
+                    i.putExtra("updateAccount", true);
+                    startActivity(i);
+                } else {
+                    Toast.makeText(ChatThreadFeedActivity.this, "Already Registered", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.updateprofile:
+                if(utype.equals("Registered")) {
+                    Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
+                    i.putExtra("updateProfile", true);
+                    startActivity(i);
+                    Toast.makeText(ChatThreadFeedActivity.this,"will update profile",Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(ChatThreadFeedActivity.this,"Please Register Your Account",Toast.LENGTH_LONG).show();
+                }
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+
+        }
+    }
+}
