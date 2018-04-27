@@ -58,7 +58,15 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
+        //onCreate(db);
+    }
+    public boolean dropTables(){
+         SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
         onCreate(db);
+        return true;
     }
 
     public boolean insertMessage (String mid, String body, String senderid, String docid,String chatid,String time) {
@@ -87,6 +95,15 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(CHATMEMBER_COLUMN_CHATID, cid);
         db.insert(CHATMEMBER_TABLE_NAME, null, contentValues);
+        return true;
+    }
+    public boolean insertChatmember (ArrayList<String> ids) {
+        for(int i=0;i<ids.size();i++){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CHATMEMBER_COLUMN_CHATID, ids.get(0));
+        db.insert(CHATMEMBER_TABLE_NAME, null, contentValues);
+        }
         return true;
     }
 

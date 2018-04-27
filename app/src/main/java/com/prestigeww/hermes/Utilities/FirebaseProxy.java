@@ -37,9 +37,11 @@ public class FirebaseProxy extends HermesUtiltity {
     public DatabaseReference mDatabaseReference;
     public static int size;
 
+
     public StorageReference mHermesStorage;
     public FirebaseProxy(Context context){
         super(context);
+
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mFirebaseDatabase.getReference();
         mHermesStorage = FirebaseStorage.getInstance().getReference();
@@ -47,12 +49,12 @@ public class FirebaseProxy extends HermesUtiltity {
 
 
 
-    public ArrayList<ChatThread> getChatsById(final ArrayList<String> chatIds){
+    public void getChatsById(final ArrayList<String> chatIds, FirebaseProxyInterface firebaseProxyInterface){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
         size = chatIds.size();
         if (usersThreads.size() != size){
             for(String id : chatIds){
-                mDatabaseReference.child("ChatThreads").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.child("chatName").getValue() != null){
@@ -60,6 +62,7 @@ public class FirebaseProxy extends HermesUtiltity {
                             String chatId = dataSnapshot.child("chatId").getValue().toString();
                             ChatThread threadToAdd = new ChatThread(chatId,chatName);
                             usersThreads.add(threadToAdd);
+                            firebaseProxyInterface.getChatThread(threadToAdd);
                         }else {
                             size--;
                         }
@@ -75,14 +78,15 @@ public class FirebaseProxy extends HermesUtiltity {
             }
         }
 
-        return usersThreads;
+        //return usersThreads;
     }
 
 
+
     public String postThreadToFirebase(ChatThread chatThread){
-        String threadKey = mDatabaseReference.child("ChatThreads").push().getKey();
+        String threadKey = mDatabaseReference.child(HermesConstants.THREAD_TABLE).push().getKey();
         chatThread.setChatId(threadKey);
-        mDatabaseReference.child("ChatThreads").child(threadKey).setValue(chatThread);
+        mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(threadKey).setValue(chatThread);
         return threadKey;
     }
 
@@ -106,17 +110,33 @@ public class FirebaseProxy extends HermesUtiltity {
         return uid;
     }
     public void postChatIDInUserToFirebase(ArrayList<String> chatID,String UserID){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
        //String Ids= mDatabaseReference.child("User").child(UserID).child("ChatID").getKey();
         //new LocalDbHelper().getAllChatmember()
-        Log.e("chat id that i got","jhjsgzfj");
         mDatabaseReference.child("User").child(UserID).child("ChatID").setValue(chatID);
+    }
+    public boolean deleteChatThread(String CID){
+
+            mDatabaseReference.child("ChatThreads").child(CID).removeValue();
+            return true;
+
     }
     public boolean isInternetAvailable(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+}
+
+
+
+
+
+
+    public interface FirebaseProxyInterface{
+        public void getChatThread(ChatThread thread);
     }
+
+
 }
