@@ -3,7 +3,7 @@ package com.prestigeww.hermes.Model;
 import java.util.ArrayList;
 
 public class User {
-    public ArrayList<String> chatIds;
+    public ArrayList<String> ChatID;
     public String username;
     public boolean isRegistered;
 
@@ -12,7 +12,7 @@ public class User {
     }
 
     public void setChatIds(ArrayList<String> chatIds) {
-        this.chatIds = chatIds;
+        this.ChatID = chatIds;
     }
 
     public void setUsername(String username) {

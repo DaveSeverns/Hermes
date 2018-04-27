@@ -1,11 +1,15 @@
 package com.prestigeww.hermes.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.Parcelable;
+
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -23,24 +28,34 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.prestigeww.hermes.Adapters.ThreadListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.NfcUtility;
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Timer;
+
+import static com.prestigeww.hermes.Utilities.HermesConstants.TEST_THREAD_TABLE;
+import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 
-public class ChatThreadFeedActivity extends AppCompatActivity {
+public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface, ThreadListAdapter.ThreadClickInterface {
 
-    private ArrayList<ChatThread> chatThreads = new ArrayList<>();
+
+    private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
     private FirebaseRecyclerAdapter firebaseRecyclerAdapter;
@@ -52,6 +67,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     private ArrayList<ChatThread> tempChatThreads = new ArrayList<>();
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseUser currentAuthUser;
 
 
     @Override
@@ -59,30 +75,38 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
         firebaseProxy = new FirebaseProxy(this);
+        dbHelper = new LocalDbHelper(this);
+        chatIds = dbHelper.getAllChatmember();
+        chatThreads = new ArrayList<>();
+        getChatsById();
+        SystemClock.sleep(500);
+        //Log.e("Chat Ids?", chatIds.get(0).toString());
 
+        firebaseProxy.getChatsById(chatIds, this);
         recyclerView = findViewById(R.id.chat_recycler_view);
-        dbHelper =  new LocalDbHelper(this);
+        dbHelper = new LocalDbHelper(this);
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mAuthListener = mFirebaseAuth ->{
+        currentAuthUser = mFirebaseAuth.getCurrentUser();
+        mAuthListener = mFirebaseAuth -> {
             try {
-                Log.e("Current User", mFirebaseAuth.getCurrentUser().getEmail());
-            }catch (Exception e){
+                Log.e("Current User", currentAuthUser.getEmail());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if (mFirebaseAuth.getCurrentUser() == null){
+            if (mFirebaseAuth.getCurrentUser() == null) {
                 Intent backToLogin = new Intent(ChatThreadFeedActivity.this, LoginActivity.class);
                 startActivity(backToLogin);
             }
         };
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
-        mDatabaseRef = firebaseProxy.mDatabaseReference.child("ChatThreads");
-        chatThreads = firebaseProxy.getChatsById(chatIds);
+        mDatabaseRef = firebaseProxy.mDatabaseReference.child(TEST_THREAD_TABLE);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //threadListAdapter = new ThreadListAdapter(chatThreads);
-        //recyclerView.setAdapter(threadListAdapter);
+        threadListAdapter = new ThreadListAdapter(chatThreads, this);
+        recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
         addChatButton.setOnClickListener(new View.OnClickListener() {
@@ -96,40 +120,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthListener);
-        //new GetListTask().execute();
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<ChatThread, ThreadViewHolder>(ChatThread.class,
-                R.layout.thread_holder_view,
-                ThreadViewHolder.class,
-                mDatabaseRef) {
-            @Override
-            public void onBindViewHolder(final ThreadViewHolder viewHolder, int position) {
-                super.onBindViewHolder(viewHolder, position);
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (viewHolder.getIdOfThread() != null) {
-                            Toast.makeText(ChatThreadFeedActivity.this, viewHolder.getIdOfThread(), Toast.LENGTH_SHORT).show();
-                            Intent toChatWindow = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
-                            toChatWindow.putExtra("chat_id", viewHolder.getIdOfThread());
-                            startActivity(toChatWindow);
-                        }
 
 
-                    }
-                });
-            }
-
-
-            @Override
-            protected void populateViewHolder(ThreadViewHolder viewHolder, ChatThread model, int position) {
-                //if(!chatIds.contains(model.getChatId())){
-                    //return;
-                //}
-                viewHolder.bindThread(model);
-            }
-        };
-        recyclerView.setAdapter(firebaseRecyclerAdapter);
     }
 
     @Override
@@ -137,20 +129,39 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
         // onResume gets called after this to handle the intent
         setIntent(intent);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthListener);
+        //firebaseRecyclerAdapter.notifyDataSetChanged();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility(this).enterChat(getIntent());        }
-        firebaseRecyclerAdapter.notifyDataSetChanged();
+            String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .getString("UserID", null);
+            ArrayList<String> ids = new LocalDbHelper(ChatThreadFeedActivity.this).getAllChatmember();
+            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
+                    NfcAdapter.EXTRA_NDEF_MESSAGES);
+            // only one message sent during the beam
+            NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
+
+            // record 0 contains the MIME type, record 1 is the AAR, if present
+            String chatID = new String(msg.getRecords()[0].getPayload());
+
+            if (ids.contains(chatID)) {
+                Log.e("NFC recieved", "already a member");
+            } else {
+                ids.add(chatID);
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
+                Log.e("NFC recieved", chatID);
+            }
+        }
         //threadListAdapter.notifyDataSetChanged();
     }
 
-    protected void addChatAlert(){
+    protected void addChatAlert() {
 
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_chat_dialog_box,null);
+        View dialogView = inflater.inflate(R.layout.add_chat_dialog_box, null);
         final EditText addChatNameText = dialogView.findViewById(R.id.chat_name_edit_text);
         final EditText addMessageText = dialogView.findViewById(R.id.first_message_edit_text);
         new AlertDialog.Builder(this).setTitle("Add New Chat?")
@@ -162,46 +173,24 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
                 threadToAdd.setChatName(addChatNameText.getText().toString());
                 message.setBody(addMessageText.getText().toString());
                 threadToAdd.addMessageToChatThread(message);
-                String chatId;
-                chatId = firebaseProxy.postThreadToFirebase(threadToAdd);
-                dbHelper.insertChatmember(chatId);
-                chatThreads.add(threadToAdd);
+                addChat(threadToAdd);
             }
         }).show();
 
 
     }
 
-    private class GetListTask extends AsyncTask<Void,Void,Void>{
+    public void addChat(ChatThread chatThread) {
+        String chatId;
 
-        public GetListTask(){
-            super();
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            chatIds.addAll(dbHelper.getAllChatmember());
+        //chatThread.addUserId(currentAuthUser.getUid());
+        chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
-            if(!chatIds.isEmpty()){
-                tempChatThreads.addAll(firebaseProxy.getChatsById(chatIds));
-                if(tempChatThreads.isEmpty()){
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            chatThreads.addAll(tempChatThreads);
-            threadListAdapter.notifyDataSetChanged();
-        }
+        //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
+        dbHelper.insertChatmember(chatId);
+        chatThreads.add(chatThread);
     }
+
 
     @Override
     protected void onStop() {
@@ -218,17 +207,94 @@ public class ChatThreadFeedActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.user_menu,menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+    }
+
+
+    public void getChatsById() {
+        final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
+        for (String id : chatIds) {
+            FirebaseDatabase.getInstance().getReference().child(HermesConstants.THREAD_TABLE).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (chatIds.contains(dataSnapshot.child("chatId").getValue())) {
+                        String chatName = dataSnapshot.child("chatName").getValue().toString();
+                        String chatId = dataSnapshot.child("chatId").getValue().toString();
+                        ChatThread threadToAdd = new ChatThread(chatId, chatName);
+                        chatThreads.add(threadToAdd);
+                        threadListAdapter.notifyDataSetChanged();
+                        //firebaseProxyInterface.getChatThread(threadToAdd);
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("FB error: ", databaseError.getDetails());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void getChatThread(ChatThread thread) {
+        chatThreads.add(thread);
+        threadListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void windowIntent(String chatId) {
+        Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+        chatWindowIntent.putExtra("chat_id", chatId);
+        startActivity(chatWindowIntent);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if(itemId == R.id.log_out_btn){
-            mFirebaseAuth.signOut();
-        }
+        String utype = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserType", null);
+        switch (item.getItemId()) {
+            case R.id.logout:
+                mFirebaseAuth.signOut();
+                new LocalDbHelper(ChatThreadFeedActivity.this).dropTables();
+                finish();
+                moveTaskToBack(true);
+                // User chose the "Settings" item, show the app settings UI...
+                return true;
+            case R.id.registeraccount:
 
-        return super.onOptionsItemSelected(item);
+                if (!utype.equals("Registered")) {
+                    Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
+                    i.putExtra("updateAccount", true);
+                    startActivity(i);
+                } else {
+                    Toast.makeText(ChatThreadFeedActivity.this, "Already Registered", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.updateprofile:
+                if(utype.equals("Registered")) {
+                    Intent i = new Intent(ChatThreadFeedActivity.this, SIgnUpActivity.class);
+                    i.putExtra("updateProfile", true);
+                    startActivity(i);
+                    Toast.makeText(ChatThreadFeedActivity.this,"will update profile",Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(ChatThreadFeedActivity.this,"Please Register Your Account",Toast.LENGTH_LONG).show();
+                }
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+
+        }
     }
 }

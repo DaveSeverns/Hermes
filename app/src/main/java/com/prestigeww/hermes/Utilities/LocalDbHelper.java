@@ -58,7 +58,15 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
+        //onCreate(db);
+    }
+    public boolean dropTables(){
+         SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS "+MESSAGE_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+USER_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+CHATMEMBER_TABLE_NAME);
         onCreate(db);
+        return true;
     }
 
     public boolean insertMessage (String mid, String body, String senderid, String docid,String chatid,String time) {
@@ -89,6 +97,15 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         db.insert(CHATMEMBER_TABLE_NAME, null, contentValues);
         return true;
     }
+    public boolean insertChatmember (ArrayList<String> ids) {
+        for(int i=0;i<ids.size();i++){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CHATMEMBER_COLUMN_CHATID, ids.get(0));
+        db.insert(CHATMEMBER_TABLE_NAME, null, contentValues);
+        }
+        return true;
+    }
 
     public Cursor getMessagesData(String Chatid) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -104,6 +121,14 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res =  db.rawQuery( "select * from "+CHATMEMBER_TABLE_NAME+"", null );
         return res;
+    }
+    public boolean UpdateUserData(String uid,String email, String uname) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(USER_COLUMN_USERNAME,uname); //These Fields should be your String values of actual column names
+        cv.put(USER_COLUMN_EMAIL,email);
+        db.update(USER_TABLE_NAME, cv, USER_COLUMN_ID+"= ?", new String[] { uid });
+        return true;
     }
 
     public int numberOfMessageRows(){
@@ -180,7 +205,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             String uid=res.getString(res.getColumnIndex(USER_COLUMN_ID));
             String uname=res.getString(res.getColumnIndex(USER_COLUMN_USERNAME));
             String email=res.getString(res.getColumnIndex(USER_COLUMN_EMAIL));
-            RegisteredUser u=new RegisteredUser(uid,uname,email,true);
+            RegisteredUser u=new RegisteredUser(uname,email,"",true);
             array_list.add(u);
             res.moveToNext();
         }

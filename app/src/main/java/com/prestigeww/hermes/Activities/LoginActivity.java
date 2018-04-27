@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -39,9 +40,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();
+
+        String uid=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserID",null);
+
+        hermesUtiltity = new HermesUtiltity(this);
         signInButton = (Button) findViewById(R.id.signInButton);
         createAccountButton = (Button) findViewById(R.id.createAccountButton);
         emailEditText = (EditText) findViewById(R.id.loginEmailEditText);
@@ -62,16 +70,25 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
+                if(new FirebaseProxy(LoginActivity.this).isInternetAvailable(LoginActivity.this)){
+                    String email = emailEditText.getText().toString().trim();
+                    String password = passwordEditText.getText().toString().trim();
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
                     if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
                         mAuth.signInWithEmailAndPassword(email,password);
                         Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
+                        new LocalDbHelper(LoginActivity.this).dropTables();
                         startActivity(intent);
                     }else {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
                     }
+                }
+
+                  //  getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                            //.edit().putBoolean("SignedIn", true).commit();
+
+                }else{
+                    Toast.makeText(LoginActivity.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -95,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     protected void onPause(){

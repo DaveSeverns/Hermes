@@ -10,6 +10,6 @@ public class RegisteredUser extends User {
         this.isRegistered=isRegistered;
         this.Password=password;
         this.email=email;
-        this.chatIds=new ArrayList<String>();
+        this.ChatID=new ArrayList<String>();
     }
 }
