@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -48,7 +49,7 @@ import static com.prestigeww.hermes.Utilities.HermesConstants.TEST_THREAD_TABLE;
 import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 
-public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface {
+public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface, ThreadListAdapter.ThreadClickInterface {
 
 
     private ArrayList<ChatThread> chatThreads;
@@ -101,7 +102,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        threadListAdapter = new ThreadListAdapter(chatThreads);
+        threadListAdapter = new ThreadListAdapter(chatThreads,this);
         recyclerView.setAdapter(threadListAdapter);
 
         addChatButton = findViewById(R.id.add_new_chat_button);
@@ -231,6 +232,13 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     public void getChatThread(ChatThread thread) {
         chatThreads.add(thread);
         threadListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void windowIntent(String chatId) {
+        Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+        chatWindowIntent.putExtra("chat_id", chatId);
+        startActivity(chatWindowIntent);
     }
 
     //return usersThreads;
