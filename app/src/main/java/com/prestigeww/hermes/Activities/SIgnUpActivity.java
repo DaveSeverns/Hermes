@@ -163,6 +163,7 @@ public class SIgnUpActivity extends AppCompatActivity {
     public void updateUser(String email,String password){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+        assert user != null;
         user.updateEmail(email)
         .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
