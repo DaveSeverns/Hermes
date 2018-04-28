@@ -79,6 +79,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         HashMap<String,MessageInChat> map = new HashMap<>();
         CID=getIntent().getStringExtra("chat_id");
+        String chatName = getIntent().getStringExtra("chatName");
+        setTitle(chatName);
         UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
         Query query = mChatThreadRef.child(CID).child("messages");

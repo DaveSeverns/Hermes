@@ -264,9 +264,10 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
     @Override
-    public void windowIntent(String chatId) {
+    public void windowIntent(String chatId, String chatName) {
         Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
         chatWindowIntent.putExtra("chat_id", chatId);
+        chatWindowIntent.putExtra("chatName", chatName);
         startActivity(chatWindowIntent);
     }
 
