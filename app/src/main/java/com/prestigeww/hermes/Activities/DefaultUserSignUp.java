@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.prestigeww.hermes.Model.DefaultUser;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
@@ -39,6 +40,8 @@ public class DefaultUserSignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.default_user);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        FirebaseApp.initializeApp(getApplicationContext());
+
         defaultuser=(EditText)findViewById(R.id.dusernameEditText);
         submit=(Button)findViewById(R.id.submitButton);
          mAuth = FirebaseAuth.getInstance();

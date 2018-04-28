@@ -2,6 +2,7 @@ package com.prestigeww.hermes.Model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ChatThread implements Serializable {
@@ -10,14 +11,14 @@ public class ChatThread implements Serializable {
     private ArrayList<String> userIds;
     private String admin;
     private String chatName;
-    private ArrayList<MessageInChat> messages;
+    private HashMap<String,MessageInChat> messages;
 
     public ChatThread(){
         chatId = "default";
         userIds = new ArrayList<String>();
         admin = null;
         chatName = "Hermes Chat";
-        messages = new ArrayList<MessageInChat>();
+        messages = new HashMap<>();
     }
 
     public ChatThread(String chatId, String admin, String chatName){
@@ -25,12 +26,12 @@ public class ChatThread implements Serializable {
         this.admin = admin;
         this.chatName = chatName;
         userIds = new ArrayList<>();
-        messages = new ArrayList<>();
+        messages = new HashMap<>();
     }
 
     public ChatThread(String chatId, String chatName ){
         this.userIds = new ArrayList<>();
-        this.messages = new ArrayList<>();
+        this.messages = new HashMap<>();
         this.chatName = chatName;
         this.chatId = chatId;
         this.admin = null;
@@ -94,18 +95,19 @@ public class ChatThread implements Serializable {
         this.chatName = chatName;
     }
 
-    public ArrayList<MessageInChat> getMessages() {
+    public HashMap<String,MessageInChat> getMessages() {
         return messages;
     }
 
-    public int addMessageToChatThread(MessageInChat messageToAdd){
-        messages.add(messageToAdd);
+    public int addMessageToChatThread(String time,MessageInChat messageToAdd){
+        messages.put(time, messageToAdd);
         return messages.size();
     }
 
-    public void setMessages(ArrayList<MessageInChat> messages) {
-        this.messages = messages;
+
+
+
+    public void addUserId(String uid) {
+        userIds.add(uid);
     }
-
-
 }

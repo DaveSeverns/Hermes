@@ -41,8 +41,9 @@ public class ThreadListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
             @Override
             public void onClick(View v) {
                 String chatId = holder.getIdOfThread();
-                if(chatId != null){
-                    threadClickInterface.windowIntent(chatId);
+                String chatName = holder.getChatName();
+                if(chatId != null && chatName != null){
+                    threadClickInterface.windowIntent(chatId, chatName);
                 }
             }
         });
@@ -64,7 +65,7 @@ public class ThreadListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
 
     public interface ThreadClickInterface{
-        public void windowIntent(String chatId);
+        public void windowIntent(String chatId, String chatName);
     }
 
 }

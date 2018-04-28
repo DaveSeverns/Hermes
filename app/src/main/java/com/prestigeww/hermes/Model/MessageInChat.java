@@ -10,33 +10,30 @@ import java.util.Locale;
 
 public class MessageInChat implements Serializable{
 
-    private String messageId;
-    private String chatThreadId;
+
+
     private String body;
     private String sender;
-    private String timeDateSent;
+
     private String docId;
+    private String messageID;
 
 
     public MessageInChat(){
 
     }
 
-    public MessageInChat(String messageId, String chatThreadId, String body, String sender) {
-        this.messageId = messageId;
-        this.chatThreadId = chatThreadId;
+    public MessageInChat(String body, String sender) {
+
         this.body = body;
         this.sender = sender;
-        this.timeDateSent = getCurrentDateString();
-        this.docId =  null;
+        this.docId =  "no_doc";
     }
 
-    public MessageInChat(String messageId, String chatThreadId, String body, String sender, String docId){
-        this.messageId = messageId;
-        this.chatThreadId = chatThreadId;
+    public MessageInChat(  String body, String sender, String docId){
+
         this.body = body;
         this.sender = sender;
-        this.timeDateSent = getCurrentDateString();
         this.docId = docId;
     }
 
@@ -46,21 +43,7 @@ public class MessageInChat implements Serializable{
         return dateFormat.format(dateObj);
     }
 
-    public String getMessageId() {
-        return messageId;
-    }
 
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
-
-    public String getChatThreadId() {
-        return chatThreadId;
-    }
-
-    public void setChatThreadId(String chatThreadId) {
-        this.chatThreadId = chatThreadId;
-    }
 
     public String getBody() {
         return body;
@@ -78,13 +61,7 @@ public class MessageInChat implements Serializable{
         this.sender = sender;
     }
 
-    public String getTimeDateSent() {
-        return timeDateSent;
-    }
 
-    public void setTimeDateSent(String timeDateSent) {
-        this.timeDateSent = timeDateSent;
-    }
 
     public String getDocId() {
         return docId;
