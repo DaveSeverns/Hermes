@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -57,6 +59,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     List<MessageInChat> messagesList = new ArrayList<>();
     private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecycler;
+    private EditText messageEdit;
+    private Button sendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +76,12 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
 
+        messageEdit = findViewById(R.id.add_message_edit_text);
+        sendButton = findViewById(R.id.send_button);
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
 
-        MessageInChat messageInChat = new MessageInChat("Hello","Dave");
+
 
         HashMap<String,MessageInChat> map = new HashMap<>();
         CID=getIntent().getStringExtra("chat_id");
@@ -106,15 +112,17 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
 
         mNfcAdapter.setNdefPushMessageCallback(this, this);
-        //chatView = (ChatView) findViewById(R.id.chat_view);
-       // chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-        //return true if successful and will add to chat ui
-        //chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
-        //    @Override
-        //    public boolean sendMessage(ChatMessage chatMessage) {
-        //        return true;
-        //    }
-        //});
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!messageEdit.getText().toString().isEmpty()){
+                    MessageInChat messageInChat = new MessageInChat(messageEdit.getText().toString(),"Dave");
+                    mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
+                }
+            }
+        });
+
         messageRecycler.setAdapter(messageListAdapter);
     }
     @Override
