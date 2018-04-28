@@ -181,7 +181,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
             public void onClick(DialogInterface dialog, int which) {
                 ChatThread threadToAdd = new ChatThread();
                 MessageInChat message = new MessageInChat(addMessageText.getText().toString(),
-                        "Dave");
+                        currentAuthUser.getEmail());
                 threadToAdd.setChatName(addChatNameText.getText().toString());
 
                 threadToAdd.addMessageToChatThread(""+ System.currentTimeMillis(),message);
