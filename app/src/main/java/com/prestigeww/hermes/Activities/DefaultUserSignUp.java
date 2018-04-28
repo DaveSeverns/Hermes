@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -47,21 +48,24 @@ public class DefaultUserSignUp extends AppCompatActivity {
 
 
                 if (new FirebaseProxy(DefaultUserSignUp.this).isInternetAvailable(DefaultUserSignUp.this)) {
-                    if (defaultuser.getText().toString().equals("")) {
-                        userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
-                    } else {
-                        userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(new DefaultUser(false, defaultuser.getText().toString()));
-                    }
-                    Intent in = new Intent(DefaultUserSignUp.this, LoginActivity.class);
-                    getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                            .edit().putString("UserType", "Default").commit();
-                    getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                            .edit().putString("UserID", userid).commit();
-                     mAuth.createUserWithEmailAndPassword(userid+"@hermes.com","Pass@123").addOnCompleteListener( new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
+
+                     mAuth.createUserWithEmailAndPassword(""+System.currentTimeMillis()+"@hermes.com","Pass@123").addOnCompleteListener(new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@android.support.annotation.NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
+                                        DefaultUser d=new DefaultUser();
                                         Intent intent = new Intent(DefaultUserSignUp.this, LoginActivity.class);
+                                        if (defaultuser.getText().toString().equals("")) {
+                                            userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase();
+                                        } else {
+                                            d=new DefaultUser(false, defaultuser.getText().toString());
+                                            userid = new FirebaseProxy(DefaultUserSignUp.this).postDefaultUserToFirebase(d);
+                                        }
+                                        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                                .edit().putString("UserType", "Default").commit();
+                                        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                                .edit().putString("UserID", userid).commit();
+                                        new LocalDbHelper(DefaultUserSignUp.this).insertUser(userid,d.username,"Default@hermes.com" );
                                         startActivity(intent);
                                     }else{
                                         task.addOnFailureListener(new OnFailureListener() {
@@ -73,7 +77,8 @@ public class DefaultUserSignUp extends AppCompatActivity {
                                     }
                                 }
                             });
-                    startActivity(in);
+
+
 
                 }else{
                     Toast.makeText(DefaultUserSignUp.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();

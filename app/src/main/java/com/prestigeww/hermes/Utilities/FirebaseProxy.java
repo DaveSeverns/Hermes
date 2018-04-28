@@ -11,6 +11,7 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +37,7 @@ public class FirebaseProxy extends HermesUtiltity {
     public FirebaseDatabase mFirebaseDatabase;
     public DatabaseReference mDatabaseReference;
     public static int size;
+    FirebaseAuth mAuth;
 
 
     public StorageReference mHermesStorage;
@@ -91,19 +93,31 @@ public class FirebaseProxy extends HermesUtiltity {
     }
 
     public String postDefaultUserToFirebase(){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
-        mDatabaseReference.child("User").child(threadKey).setValue(new DefaultUser(false,threadKey));
-        return threadKey;
+      //  String threadKey = mDatabaseReference.child("User").push().getKey();
+        mAuth = FirebaseAuth.getInstance();
+        DefaultUser d=new DefaultUser(false,mAuth.getCurrentUser().getUid());
+        ArrayList<String > arr=new ArrayList<String>();
+        arr.add("do_not_touch");
+        d.ChatID=arr;
+        mDatabaseReference.child("User").child(""+mAuth.getCurrentUser().getUid()).setValue(d);
+        return mAuth.getCurrentUser().getUid();
     }
     public String postDefaultUserToFirebase(DefaultUser defaultUser){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
-        mDatabaseReference.child("User").child(threadKey).setValue(defaultUser);
-        return threadKey;
+        mAuth = FirebaseAuth.getInstance();
+        //String threadKey = mDatabaseReference.child("User").push().getKey();
+        ArrayList<String > arr=new ArrayList<String>();
+        arr.add("do_not_touch");
+        defaultUser.ChatID=arr;
+        mDatabaseReference.child("User").child(mAuth.getCurrentUser().getUid()).setValue(defaultUser);
+        return mAuth.getCurrentUser().getUid();
     }
-    public String postRegisteredUserToFirebase(RegisteredUser registeredUser){
-        String threadKey = mDatabaseReference.child("User").push().getKey();
-        mDatabaseReference.child("User").child(threadKey).setValue(registeredUser);
-        return threadKey;
+    public String postRegisteredUserToFirebase(RegisteredUser registeredUser,String uid){
+        //String threadKey = mDatabaseReference.child("User").push().getKey();
+        ArrayList<String > arr=new ArrayList<String>();
+        arr.add("do_not_touch");
+        registeredUser.ChatID=arr;
+        mDatabaseReference.child("User").child(uid).setValue(registeredUser);
+        return uid;
     }
     public String postUserUpdateToFirebase(RegisteredUser registeredUser,String uid){
         mDatabaseReference.child("User").child(uid).setValue(registeredUser);
