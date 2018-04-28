@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.github.library.bubbleview.BubbleTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -124,6 +125,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             @Override
             public void onClick(View v) {
 
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
@@ -131,7 +133,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                     email = "defaultUser";
                 }
 
-                Log.d("sender", sender);
+                //Log.d("sender", sender);
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
                 MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), email);
