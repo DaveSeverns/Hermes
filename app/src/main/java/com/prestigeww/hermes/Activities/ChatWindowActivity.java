@@ -59,13 +59,18 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     List<MessageInChat> messagesList = new ArrayList<>();
     private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecycler;
-    private EditText messageEdit;
-    private Button sendButton;
+
+    Button sendButton;
+    EditText messageEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
+
+        sendButton = (Button) findViewById(R.id.sendButton);
+        messageEditText = (EditText) findViewById(R.id.editTextSendMessage);
+
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
@@ -76,17 +81,15 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
 
-        messageEdit = findViewById(R.id.add_message_edit_text);
-        sendButton = findViewById(R.id.send_button);
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
 
-
-
-        HashMap<String,MessageInChat> map = new HashMap<>();
         CID=getIntent().getStringExtra("chat_id");
+        String chatName = getIntent().getStringExtra("chatName");
+        setTitle(chatName);
         UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
+
         Query query = mChatThreadRef.child(CID).child("messages");
         query.addValueEventListener(new ValueEventListener() {
             @Override
@@ -108,20 +111,19 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
         });
 
-        //mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
-
-
-        mNfcAdapter.setNdefPushMessageCallback(this, this);
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!messageEdit.getText().toString().isEmpty()){
-                    MessageInChat messageInChat = new MessageInChat(messageEdit.getText().toString(),"Dave");
-                    mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
-                }
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
+                mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
+
+                messagesList.add(messageInChat);
+                messageListAdapter.notifyDataSetChanged();
+
             }
         });
+
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
 
         messageRecycler.setAdapter(messageListAdapter);
     }

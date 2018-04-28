@@ -46,6 +46,10 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
         return threadInHolder.getChatId();
     }
 
+    public String getChatName(){
+        return threadInHolder.getChatName();
+    }
+
     private static String generateColor() {
         randomGenerator = new Random();
         int newColor = randomGenerator.nextInt(0x1000000);
