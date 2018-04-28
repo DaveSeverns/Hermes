@@ -17,10 +17,15 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.prestigeww.hermes.Model.ChatThread;
+import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.Model.RegisteredUser;
 import com.prestigeww.hermes.Model.User;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.HermesUtiltity;
 import com.prestigeww.hermes.Utilities.NewMessageNotification;
@@ -36,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener authStateListener;
     FirebaseAuth mAuth;
     HermesUtiltity hermesUtiltity;
+    DatabaseReference mDatabaseReference;
 
 
     @Override
@@ -59,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         defaultAccount=(Button)findViewById(R.id.DefaultAccountButton);
         new NewMessageNotification().notify(this,"Demo Chat ","Demo Message",1);
         //new FirebaseProxy().postChatIDInUserToFirebase("hfrhrgfwjsk");
+
 
         authStateListener =  mAuth ->{
             FirebaseUser user = mAuth.getCurrentUser();

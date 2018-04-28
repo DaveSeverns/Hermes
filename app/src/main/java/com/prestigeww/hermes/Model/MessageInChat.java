@@ -16,13 +16,14 @@ public class MessageInChat implements Serializable{
     private String sender;
 
     private String docId;
+    private String messageID;
 
 
     public MessageInChat(){
 
     }
 
-    public MessageInChat(  String body, String sender) {
+    public MessageInChat(String body, String sender) {
 
         this.body = body;
         this.sender = sender;
