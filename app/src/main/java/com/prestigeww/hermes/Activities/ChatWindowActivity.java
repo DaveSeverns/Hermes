@@ -100,8 +100,13 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                             messages.child("sender").getValue().toString());
 
 
+                    if(messagesList.contains(tempMessage)){
+                        return;
+                    }
+
                     messagesList.add(tempMessage);
                     messageListAdapter.notifyDataSetChanged();
+                    messageRecycler.scrollToPosition(messagesList.size() -1);
                     Log.e("Value ", messages.child("body").getValue().toString());
                 }
 
@@ -118,7 +123,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             public void onClick(View v) {
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
-                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), "Sender");
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
