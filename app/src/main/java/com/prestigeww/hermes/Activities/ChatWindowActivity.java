@@ -40,6 +40,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
+
+        //NFC
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
@@ -47,21 +49,24 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             return;
         }
         firebaseProxy = new FirebaseProxy(this);
+
+        //get ChatID and UserId
         CID=getIntent().getStringExtra("chat_id");
         UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
         mNfcAdapter.setNdefPushMessageCallback(this, this);
-        chatView = (ChatView) findViewById(R.id.chat_view);
-        chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-        //return true if successful and will add to chat ui
-        chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
-            @Override
-            public boolean sendMessage(ChatMessage chatMessage) {
-                return true;
-            }
-        });
+
+
 
     }
+
+
+    //Messages
+
+
+
+
+    //NFC
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
@@ -72,6 +77,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         );
         return msg;
     }
+
+    //Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -116,6 +123,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         }
     }
+
+    //check if admin
     public boolean isAdmin(){
         Query q = firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).child("admin").equalTo(UID);
         Log.e("CID",CID);
@@ -138,7 +147,6 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
         });
         return adminbool;
-
     }
 
 }
