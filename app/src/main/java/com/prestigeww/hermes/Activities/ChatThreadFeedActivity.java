@@ -185,7 +185,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 threadToAdd.setChatName(addChatNameText.getText().toString());
 
                 threadToAdd.addMessageToChatThread(""+ System.currentTimeMillis(),message);
-                threadToAdd.setAdmin(currentAuthUser.getEmail());
+                threadToAdd.setAdmin(currentAuthUser.getUid());
                 addChat(threadToAdd);
             }
         }).show();
