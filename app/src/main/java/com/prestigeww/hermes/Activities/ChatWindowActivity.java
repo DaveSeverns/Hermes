@@ -98,6 +98,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                         dataSnapshot.getChildren()){
                     MessageInChat tempMessage = new MessageInChat(messages.child("body").getValue().toString(),
                             messages.child("sender").getValue().toString());
+
+
                     messagesList.add(tempMessage);
                     messageListAdapter.notifyDataSetChanged();
                     Log.e("Value ", messages.child("body").getValue().toString());
@@ -119,8 +121,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
-                messagesList.add(messageInChat);
-                messageListAdapter.notifyDataSetChanged();
+                messagesList.clear();
+                //messagesList.add(messageInChat);
+                //messageListAdapter.notifyDataSetChanged();
 
             }
         });
