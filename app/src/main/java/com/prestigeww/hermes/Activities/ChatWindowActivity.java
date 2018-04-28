@@ -23,6 +23,8 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -117,6 +119,10 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             @Override
             public void onClick(View v) {
 
+                String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+
+                Log.d("sender", sender);
+
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
                 MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
@@ -132,6 +138,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         messageRecycler.setAdapter(messageListAdapter);
     }
+
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
@@ -142,6 +149,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         );
         return msg;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -149,6 +157,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         String utype = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
@@ -186,6 +195,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         }
     }
+
     public boolean isAdmin(){
         Query q = firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).child("admin").equalTo(UID);
         Log.e("CID",CID);
