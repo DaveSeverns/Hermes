@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -58,10 +60,17 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecycler;
 
+    Button sendButton;
+    EditText messageEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
+
+        sendButton = (Button) findViewById(R.id.sendButton);
+        messageEditText = (EditText) findViewById(R.id.editTextSendMessage);
+
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
@@ -75,14 +84,12 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
 
-        MessageInChat messageInChat = new MessageInChat("Hello","Dave");
-
-        HashMap<String,MessageInChat> map = new HashMap<>();
         CID=getIntent().getStringExtra("chat_id");
         String chatName = getIntent().getStringExtra("chatName");
         setTitle(chatName);
         UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
+
         Query query = mChatThreadRef.child(CID).child("messages");
         query.addValueEventListener(new ValueEventListener() {
             @Override
@@ -104,19 +111,20 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
         });
 
-        //mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
+                mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
+                messagesList.add(messageInChat);
+                messageListAdapter.notifyDataSetChanged();
+
+            }
+        });
 
         mNfcAdapter.setNdefPushMessageCallback(this, this);
-        //chatView = (ChatView) findViewById(R.id.chat_view);
-       // chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-        //return true if successful and will add to chat ui
-        //chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
-        //    @Override
-        //    public boolean sendMessage(ChatMessage chatMessage) {
-        //        return true;
-        //    }
-        //});
+
         messageRecycler.setAdapter(messageListAdapter);
     }
     @Override
