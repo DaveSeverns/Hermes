@@ -12,7 +12,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.prestigeww.hermes.Model.RegisteredUser;
@@ -70,23 +72,24 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(new FirebaseProxy(LoginActivity.this).isInternetAvailable(LoginActivity.this)){
+                if(new FirebaseProxy(getApplicationContext()).isInternetAvailable(LoginActivity.this)){
                     String email = emailEditText.getText().toString().trim();
                     String password = passwordEditText.getText().toString().trim();
-                if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
-                    if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
-                        mAuth.signInWithEmailAndPassword(email,password);
-                        Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
-                        new LocalDbHelper(LoginActivity.this).dropTables();
-                        startActivity(intent);
-                    }else {
+                    if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
+                        if(hermesUtiltity.isValidPassword(password) && hermesUtiltity.isValidEmail(email)){
+                        mAuth.signInWithEmailAndPassword(email,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                            @Override
+                            public void onSuccess(AuthResult authResult) {
+                                Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
+                                new LocalDbHelper(LoginActivity.this).dropTables();
+                                startActivity(intent);
+                            }
+                        });
+
+                        }else {
                         hermesUtiltity.showToast("Enter a valid Email or Password");
+                        }
                     }
-                }
-
-                  //  getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                            //.edit().putBoolean("SignedIn", true).commit();
-
                 }else{
                     Toast.makeText(LoginActivity.this,"Internet Connection Not Available",Toast.LENGTH_LONG).show();
                 }

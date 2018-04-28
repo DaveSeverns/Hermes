@@ -21,6 +21,7 @@ import com.google.firebase.storage.StorageReference;
 import com.prestigeww.hermes.Activities.SIgnUpActivity;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.DefaultUser;
+import com.prestigeww.hermes.Model.Hermes;
 import com.prestigeww.hermes.Model.RegisteredUser;
 
 import java.lang.reflect.Field;
@@ -51,13 +52,14 @@ public class FirebaseProxy extends HermesUtiltity {
 
     public void getChatsById(final ArrayList<String> chatIds, FirebaseProxyInterface firebaseProxyInterface){
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
+        DatabaseReference getRef = mDatabaseReference.child(HermesConstants.THREAD_TABLE);
         size = chatIds.size();
         if (usersThreads.size() != size){
             for(String id : chatIds){
-                mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                getRef.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.child("chatName").getValue() != null){
+                        if(chatIds.contains(dataSnapshot.getKey())){
                             String chatName = dataSnapshot.child("chatName").getValue().toString();
                             String chatId = dataSnapshot.child("chatId").getValue().toString();
                             ChatThread threadToAdd = new ChatThread(chatId,chatName);
@@ -84,9 +86,10 @@ public class FirebaseProxy extends HermesUtiltity {
 
 
     public String postThreadToFirebase(ChatThread chatThread){
-        String threadKey = mDatabaseReference.child(HermesConstants.THREAD_TABLE).push().getKey();
+        DatabaseReference postRef = mDatabaseReference.child(HermesConstants.THREAD_TABLE);
+        String threadKey = postRef.push().getKey();
         chatThread.setChatId(threadKey);
-        mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(threadKey).setValue(chatThread);
+        postRef.child(threadKey).setValue(chatThread);
         return threadKey;
     }
 
