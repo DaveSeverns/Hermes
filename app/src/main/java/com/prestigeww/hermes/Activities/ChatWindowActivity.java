@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import java.util.ArrayList;
+
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
 
@@ -190,21 +192,19 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 }
                 return true;
             case R.id.exitchat:
-                if(utype.equals("Registered")) {
-                    Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
-                    i.putExtra("updateProfile", true);
-                    startActivity(i);
-                    Toast.makeText(ChatWindowActivity.this,"will update profile",Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(ChatWindowActivity.this,"Please Register Your Account",Toast.LENGTH_LONG).show();
-                }
+                String userid= ChatWindowActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .getString("UserID",null);
+                int del=new LocalDbHelper((ChatWindowActivity.this)).deleteChatmember(CID);
+                Log.e("Deleted chat local",""+del);
+                ArrayList<String> ids=new LocalDbHelper(ChatWindowActivity.this).getAllChatmember();
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
+                startActivity(i);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
-
         }
     }
 
@@ -217,6 +217,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                    adminbool=false;
                    if(dataSnapshot.child("admin").getValue().toString() != null) {
                        String admin = dataSnapshot.child("admin").getValue().toString();
                        if (admin.equals(UID))

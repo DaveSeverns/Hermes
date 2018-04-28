@@ -21,6 +21,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.RegisteredUser;
 import com.prestigeww.hermes.Model.User;
 import com.prestigeww.hermes.R;
@@ -41,8 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener authStateListener;
     FirebaseAuth mAuth;
     HermesUtiltity hermesUtiltity;
-    DatabaseReference mDatabaseReference;
-
+    ArrayList<String> cids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();
-
+        cids=new ArrayList<String>();
         String uid=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
 
@@ -66,11 +70,11 @@ public class LoginActivity extends AppCompatActivity {
         new NewMessageNotification().notify(this,"Demo Chat ","Demo Message",1);
         //new FirebaseProxy().postChatIDInUserToFirebase("hfrhrgfwjsk");
 
-
         authStateListener =  mAuth ->{
             FirebaseUser user = mAuth.getCurrentUser();
             if (user != null){
                 Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
+                getUserById();
                 startActivity(intent);
             }
         };
@@ -134,5 +138,45 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         mAuth.addAuthStateListener(authStateListener);
+    }
+    public void getUserById() {
+            FirebaseDatabase.getInstance().getReference().child("User").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()) {
+                        for(DataSnapshot chatIDS:
+                                dataSnapshot.child("ChatID").getChildren()) {
+                            String c = chatIDS.getValue().toString();
+                            Log.e("Data Snap",c);
+                            cids.add(c);
+
+                        }
+                        String em;
+                        if(dataSnapshot.child("isRegistered").getValue().equals(true)) {
+                            em = dataSnapshot.child("email").getValue().toString();
+                        }else{
+                            em="Default@hermes.com";
+                        }
+                        String uname = dataSnapshot.child("username").getValue().toString();
+                        Log.e("DaTA snap um",uname);
+                        Log.e("DaTA snap em",em);
+                        LocalDbHelper lb=new LocalDbHelper(LoginActivity.this);
+                        lb.dropTables();
+                        lb.insertChatmember(cids);
+                        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                .edit().putString("UserName", uname).commit();
+                        lb.insertUser(mAuth.getCurrentUser().getUid(),uname,em);
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("FB error: ", databaseError.getDetails());
+                }
+            });
+
     }
 }

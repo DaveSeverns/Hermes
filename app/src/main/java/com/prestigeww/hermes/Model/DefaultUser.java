@@ -8,5 +8,8 @@ public class DefaultUser extends User {
         this.username=username;
         this.ChatID=new ArrayList<String>();
     }
+    public DefaultUser(){
+
+    }
 
 }
