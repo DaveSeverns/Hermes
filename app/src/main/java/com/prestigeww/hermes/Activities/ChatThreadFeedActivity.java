@@ -181,7 +181,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
             public void onClick(DialogInterface dialog, int which) {
                 ChatThread threadToAdd = new ChatThread();
                 MessageInChat message = new MessageInChat(addMessageText.getText().toString(),
-                        "Dave");
+                        currentAuthUser.getEmail());
                 threadToAdd.setChatName(addChatNameText.getText().toString());
 
                 threadToAdd.addMessageToChatThread(""+ System.currentTimeMillis(),message);
@@ -264,7 +264,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
     @Override
-    public void windowIntent(String chatId, String chatName) {
+    public void windowIntent(String chatId,String chatName) {
         Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
         chatWindowIntent.putExtra("chat_id", chatId);
         chatWindowIntent.putExtra("chatName", chatName);

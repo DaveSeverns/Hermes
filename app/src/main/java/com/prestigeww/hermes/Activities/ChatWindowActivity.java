@@ -23,6 +23,8 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +42,8 @@ import com.prestigeww.hermes.Utilities.MessageViewHolder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import java.util.ArrayList;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -100,8 +104,13 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                             messages.child("sender").getValue().toString());
 
 
+                    if(messagesList.contains(tempMessage)){
+                        return;
+                    }
+
                     messagesList.add(tempMessage);
                     messageListAdapter.notifyDataSetChanged();
+                    messageRecycler.scrollToPosition(messagesList.size() -1);
                     Log.e("Value ", messages.child("body").getValue().toString());
                 }
 
@@ -117,8 +126,17 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             @Override
             public void onClick(View v) {
 
+                String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+                if(email == null){
+                    email = "defaultUser";
+                }
+
+                Log.d("sender", sender);
+
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
-                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), email);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
@@ -132,6 +150,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         messageRecycler.setAdapter(messageListAdapter);
     }
+
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
@@ -142,6 +161,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         );
         return msg;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -149,6 +169,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         String utype = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
@@ -169,23 +190,22 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 }
                 return true;
             case R.id.exitchat:
-                if(utype.equals("Registered")) {
-                    Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
-                    i.putExtra("updateProfile", true);
-                    startActivity(i);
-                    Toast.makeText(ChatWindowActivity.this,"will update profile",Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(ChatWindowActivity.this,"Please Register Your Account",Toast.LENGTH_LONG).show();
-                }
+                String userid= ChatWindowActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .getString("UserID",null);
+                int del=new LocalDbHelper((ChatWindowActivity.this)).deleteChatmember(CID);
+                Log.e("Deleted chat local",""+del);
+                ArrayList<String> ids=new LocalDbHelper(ChatWindowActivity.this).getAllChatmember();
+                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
+                Intent i = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
+                startActivity(i);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
-
         }
     }
+
     public boolean isAdmin(){
         Query q = firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).child("admin").equalTo(UID);
         Log.e("CID",CID);
@@ -195,6 +215,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         firebaseProxy.mDatabaseReference.child("ChatThreads").child(CID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                    adminbool=false;
                    if(dataSnapshot.child("admin").getValue().toString() != null) {
                        String admin = dataSnapshot.child("admin").getValue().toString();
                        if (admin.equals(UID))
