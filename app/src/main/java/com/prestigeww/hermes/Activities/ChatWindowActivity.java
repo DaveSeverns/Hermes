@@ -142,6 +142,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
+                messageEditText.setText("");
                 //messagesList.add(messageInChat);
                 //messageListAdapter.notifyDataSetChanged();
 
