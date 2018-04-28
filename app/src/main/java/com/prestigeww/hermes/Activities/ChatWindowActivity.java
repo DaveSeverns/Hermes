@@ -71,7 +71,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageListAdapter = new MessageListAdapter(messagesList);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
-        messageRecycler.setAdapter(messageListAdapter);
+
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
 
@@ -104,7 +104,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
         });
 
-        mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
+        //mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
 
 
         mNfcAdapter.setNdefPushMessageCallback(this, this);
@@ -117,7 +117,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         //        return true;
         //    }
         //});
-
+        messageRecycler.setAdapter(messageListAdapter);
     }
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
