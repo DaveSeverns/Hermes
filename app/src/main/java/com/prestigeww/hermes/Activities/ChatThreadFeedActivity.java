@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -72,6 +74,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_thread_feed);
+        FirebaseApp.initializeApp(getApplicationContext());
+
         firebaseProxy = new FirebaseProxy(this);
         dbHelper = new LocalDbHelper(this);
         chatIds = dbHelper.getAllChatmember();
@@ -99,7 +103,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         };
         //chatThreads = firebaseProxy.getChatsById(chatIds);
         //Log.e("Ids", );
-        mDatabaseRef = firebaseProxy.mDatabaseReference.child(TEST_THREAD_TABLE);
+        mDatabaseRef = firebaseProxy.mDatabaseReference.child(THREAD_TABLE);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -176,11 +180,12 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ChatThread threadToAdd = new ChatThread();
-                MessageInChat message = new MessageInChat();
+                MessageInChat message = new MessageInChat(addMessageText.getText().toString(),
+                        "Dave");
                 threadToAdd.setChatName(addChatNameText.getText().toString());
-                message.setBody(addMessageText.getText().toString());
-                threadToAdd.addMessageToChatThread(message);
-                threadToAdd.setAdmin("");
+
+                threadToAdd.addMessageToChatThread(""+ System.currentTimeMillis(),message);
+                threadToAdd.setAdmin(currentAuthUser.getEmail());
                 addChat(threadToAdd);
             }
         }).show();
@@ -191,6 +196,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     public void addChat(ChatThread chatThread) {
         String chatId;
         chatThread.addUserId(currentAuthUser.getUid());
+
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
         //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);

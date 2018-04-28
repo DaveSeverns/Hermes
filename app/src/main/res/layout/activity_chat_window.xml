@@ -9,17 +9,10 @@
     tools:context=".Activities.ChatWindowActivity"
     xmlns:chatview="http://schemas.android.com/apk/res-auto">
 
-    <co.intentservice.chatui.ChatView
-        android:id="@+id/chat_view"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/message_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        chatview:backgroundColor="@color/lightGray"
-        chatview:inputBackgroundColor="@color/off_white"
-        chatview:inputTextSize="20dp"
-        chatview:inputUseEditorAction="true"
-        chatview:bubbleElevation="elevated"
-        chatview:bubbleBackgroundRcv="@color/lightGray"
-        chatview:bubbleBackgroundSend="@color/lightGray" />
+        android:layout_height="match_parent" />
 
 
 </LinearLayout>

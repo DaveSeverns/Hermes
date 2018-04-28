@@ -5,22 +5,36 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.prestigeww.hermes.Model.ChatThread;
+import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
+import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
+import com.prestigeww.hermes.Utilities.MessageViewHolder;
+
+import java.util.HashMap;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -36,6 +50,11 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     private DatabaseReference mDatabaseRef;
     private FirebaseProxy firebaseProxy;
     boolean adminbool=false;
+    private DatabaseReference mChatThreadRef;
+    private FirebaseRecyclerAdapter<MessageInChat, MessageViewHolder> firebaseRecyclerAdapter;
+    private FirebaseRecyclerOptions<MessageInChat> firebaseRecyclerOptions;
+    private RecyclerView messageRecycler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,20 +65,63 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             finish();
             return;
         }
+        messageRecycler = findViewById(R.id.message_recycler);
+        messageRecycler.setLayoutManager(new LinearLayoutManager(this));
         firebaseProxy = new FirebaseProxy(this);
+        mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
+
+        MessageInChat messageInChat = new MessageInChat("Hello","Dave");
+
+        HashMap<String,MessageInChat> map = new HashMap<>();
         CID=getIntent().getStringExtra("chat_id");
         UID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
-        mNfcAdapter.setNdefPushMessageCallback(this, this);
-        chatView = (ChatView) findViewById(R.id.chat_view);
-        chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-        //return true if successful and will add to chat ui
-        chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
+        Query query = mChatThreadRef.child(CID).child("messages");
+        query.addValueEventListener(new ValueEventListener() {
             @Override
-            public boolean sendMessage(ChatMessage chatMessage) {
-                return true;
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot messages:
+                        dataSnapshot.getChildren()){
+                    Log.e("Value ", messages.child("body").getValue().toString());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
+        firebaseRecyclerOptions = new FirebaseRecyclerOptions
+                .Builder<MessageInChat>().setQuery(query,MessageInChat.class)
+                .build();
+        mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
+
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MessageInChat, MessageViewHolder>(firebaseRecyclerOptions) {
+            @Override
+            protected void onBindViewHolder(@NonNull MessageViewHolder holder, int position, @NonNull MessageInChat model) {
+                holder.bindView(model);
+            }
+
+            @NonNull
+            @Override
+            public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_holder_layout,parent,false);
+                return new MessageViewHolder(view) ;
+            }
+        };
+
+        messageRecycler.setAdapter(firebaseRecyclerAdapter);
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
+        //chatView = (ChatView) findViewById(R.id.chat_view);
+       // chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
+        //return true if successful and will add to chat ui
+        //chatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
+        //    @Override
+        //    public boolean sendMessage(ChatMessage chatMessage) {
+        //        return true;
+        //    }
+        //});
 
     }
     @Override
@@ -141,4 +203,16 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firebaseRecyclerAdapter.notifyDataSetChanged();
+    }
 }
