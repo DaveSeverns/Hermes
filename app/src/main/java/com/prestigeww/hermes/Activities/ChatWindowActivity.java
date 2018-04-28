@@ -125,11 +125,12 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             public void onClick(View v) {
 
                 String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
                 Log.d("sender", sender);
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
-                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), "Sender");
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), email);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
