@@ -55,7 +55,6 @@ import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface, ThreadListAdapter.ThreadClickInterface {
 
-
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
@@ -68,7 +67,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser currentAuthUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,8 +165,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         threadListAdapter.notifyDataSetChanged();
     }
 
-
-
     protected void addChatAlert() {
 
         LayoutInflater inflater = getLayoutInflater();
@@ -225,11 +221,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
 
-
     @Override
     public void onBackPressed() {
     }
-
 
     public void getChatsById() {
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
