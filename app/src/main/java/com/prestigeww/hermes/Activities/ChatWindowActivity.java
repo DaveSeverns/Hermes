@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.prestigeww.hermes.Adapters.MessageListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
@@ -34,7 +35,9 @@ import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.MessageViewHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -51,8 +54,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     private FirebaseProxy firebaseProxy;
     boolean adminbool=false;
     private DatabaseReference mChatThreadRef;
-    private FirebaseRecyclerAdapter<MessageInChat, MessageViewHolder> firebaseRecyclerAdapter;
-    private FirebaseRecyclerOptions<MessageInChat> firebaseRecyclerOptions;
+    List<MessageInChat> messagesList = new ArrayList<>();
+    private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecycler;
 
     @Override
@@ -65,8 +68,10 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             finish();
             return;
         }
+        messageListAdapter = new MessageListAdapter(messagesList);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
+        messageRecycler.setAdapter(messageListAdapter);
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
 
@@ -82,6 +87,10 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot messages:
                         dataSnapshot.getChildren()){
+                    MessageInChat tempMessage = new MessageInChat(messages.child("body").getValue().toString(),
+                            messages.child("sender").getValue().toString());
+                    messagesList.add(tempMessage);
+                    messageListAdapter.notifyDataSetChanged();
                     Log.e("Value ", messages.child("body").getValue().toString());
                 }
 
@@ -92,26 +101,10 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
             }
         });
-        firebaseRecyclerOptions = new FirebaseRecyclerOptions
-                .Builder<MessageInChat>().setQuery(query,MessageInChat.class)
-                .build();
+
         mChatThreadRef.child(CID).child("messages").child(""+System.currentTimeMillis()).setValue(messageInChat);
 
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MessageInChat, MessageViewHolder>(firebaseRecyclerOptions) {
-            @Override
-            protected void onBindViewHolder(@NonNull MessageViewHolder holder, int position, @NonNull MessageInChat model) {
-                holder.bindView(model);
-            }
 
-            @NonNull
-            @Override
-            public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_holder_layout,parent,false);
-                return new MessageViewHolder(view) ;
-            }
-        };
-
-        messageRecycler.setAdapter(firebaseRecyclerAdapter);
         mNfcAdapter.setNdefPushMessageCallback(this, this);
         //chatView = (ChatView) findViewById(R.id.chat_view);
        // chatView.addMessage(new ChatMessage("Message received", System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
@@ -213,6 +206,6 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onResume() {
         super.onResume();
-        firebaseRecyclerAdapter.notifyDataSetChanged();
+        //firebaseRecyclerAdapter.notifyDataSetChanged();
     }
 }
