@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         hermesUtiltity = new HermesUtiltity(this);
         mAuth = FirebaseAuth.getInstance();
-
+        cids=new ArrayList<String>();
         String uid=this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .getString("UserID",null);
 
