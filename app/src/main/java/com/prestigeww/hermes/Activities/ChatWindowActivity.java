@@ -127,6 +127,10 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
+                if(email == null){
+                    email = "defaultUser";
+                }
+
                 Log.d("sender", sender);
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
