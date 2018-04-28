@@ -114,6 +114,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
                 MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), UID);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 

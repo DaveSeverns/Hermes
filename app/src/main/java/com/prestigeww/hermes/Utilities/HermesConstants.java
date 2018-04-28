@@ -5,4 +5,6 @@ public interface HermesConstants {
     public static final String TEST_THREAD_TABLE = "TestChatThreads";
     public static final String TEST_USER_TABLE = "TestUsers";
 
+    public static final String MESSAGES_TABLE = "messages";
+
 }
