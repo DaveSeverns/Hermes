@@ -81,14 +81,14 @@ public class SIgnUpActivity extends AppCompatActivity {
                         if(!isUpdate && !updateProfile) {
                             RegisteredUser registeredUser = new RegisteredUser(nameEditText.getText().toString(), emailEditText.getText().toString()
                                     , passwordEditText.getText().toString(), true);
+                            
                             userid = new FirebaseProxy(SIgnUpActivity.this).postRegisteredUserToFirebase(registeredUser);
                             Intent intent = new Intent(SIgnUpActivity.this, ChatThreadFeedActivity.class);
                             getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                     .edit().putString("UserType", "Registered").commit();
                             getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                     .edit().putString("UserID", userid).commit();
-                            addNewUser(registeredUser,emailEditText.getText().toString()
-                                    , passwordEditText.getText().toString());
+
                             startActivity(intent);
                             new LocalDbHelper(SIgnUpActivity.this).insertUser(userid,nameEditText.getText().toString(),
                                     emailEditText.getText().toString());

@@ -153,6 +153,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
                 new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
                 Log.e("NFC recieved", chatID);
+                finish();
+                Intent in=new Intent(ChatThreadFeedActivity.this,ChatThreadFeedActivity.class);
+                startActivity(in);
             }
         }
         //threadListAdapter.notifyDataSetChanged();
@@ -173,6 +176,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 threadToAdd.setChatName(addChatNameText.getText().toString());
                 message.setBody(addMessageText.getText().toString());
                 threadToAdd.addMessageToChatThread(message);
+                //threadToAdd.setAdmin(UID);
                 addChat(threadToAdd);
             }
         }).show();
