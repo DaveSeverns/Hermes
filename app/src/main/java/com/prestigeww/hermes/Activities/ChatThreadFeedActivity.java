@@ -197,7 +197,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         String chatId;
         chatThread.addUserId(currentAuthUser.getUid());
 
-        //chatThread.addUserId(currentAuthUser.getUid());
         chatId = firebaseProxy.postThreadToFirebase(chatThread);
 
         //FirebaseDatabase.getInstance().getReference().child(HermesConstants.TEST_USER_TABLE);
@@ -265,7 +264,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
     @Override
-    public void windowIntent(String chatId) {
+    public void windowIntent(String chatId,String chatName) {
         Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
         chatWindowIntent.putExtra("chat_id", chatId);
         chatWindowIntent.putExtra("chatName", chatName);
