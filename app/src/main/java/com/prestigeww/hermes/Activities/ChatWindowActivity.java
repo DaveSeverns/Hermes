@@ -21,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -151,13 +153,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             @Override
             public void onClick(View v) {
 
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                 String sender = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-                String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-                if(email == null){
-                    email = "defaultUser";
-                }
 
                 Log.d("sender", sender);
 
@@ -168,9 +165,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 messagesList.clear();
                 messageEditText.setText("");
 
-                //messagesList.add(messageInChat);
-                //messageListAdapter.notifyDataSetChanged();
-
+                messageEditText.onEditorAction(EditorInfo.IME_ACTION_DONE);
             }
         });
 
