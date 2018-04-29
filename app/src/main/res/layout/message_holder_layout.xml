@@ -23,15 +23,13 @@
             android:text="sender_here"
             android:textColor="@color/white"/>
 
-            <com.github.library.bubbleview.BubbleImageView
-                android:id="@+id/image_bubble"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:adjustViewBounds="false"
-                android:cropToPadding="false"
-                android:scaleType="centerCrop"
-                android:src="@drawable/hermes_logo_new"
-                android:visibility="invisible" />
+            <ImageView
+                android:id="@+id/image_sent"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/hermes2" />
+
         </RelativeLayout>
 
         <com.github.library.bubbleview.BubbleTextView

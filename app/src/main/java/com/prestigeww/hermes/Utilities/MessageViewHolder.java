@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.library.bubbleview.BubbleImageView;
@@ -21,13 +22,13 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     String sender;
     String email;
 
-    private BubbleImageView bubbleImage;
+    private ImageView bubbleImage;
     public MessageViewHolder(View itemView) {
         super(itemView);
 
         senderTextView = itemView.findViewById(R.id.sender_textview);
         bodyTextView = (BubbleTextView) itemView.findViewById(R.id.body_textview);
-        bubbleImage = (BubbleImageView) itemView.findViewById(R.id.image_bubble);
+        bubbleImage =  itemView.findViewById(R.id.image_sent);
 
         email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
@@ -40,23 +41,24 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         if (!message.getDocId().equals("no_doc")) {
                 bubbleImage.setVisibility(View.VISIBLE);
                 Picasso.with(context.getApplicationContext()).load(message.getDocId()).into(bubbleImage);
+                bodyTextView.setVisibility(View.GONE);
+        }else{
+            bodyTextView.setText(message.getBody());
         }
+
         senderTextView.setText(message.getSender());
-        bodyTextView.setText(message.getBody());
 
-        if (sender == email) {
-            senderTextView.setText("Me");
-            senderTextView.setBackgroundColor(Color.CYAN);
-        } else {
-            senderTextView.setText(message.getSender());
-        }
+
+       // if (sender == email) {
+        //    senderTextView.setText("Me");
+        //    senderTextView.setBackgroundColor(Color.CYAN);
+        //} else {
+        //    senderTextView.setText(message.getSender());
+        //}
 
 
     }
 
-    public void setSenderBackground(){
-        senderTextView.setBackgroundColor(Color.CYAN);
-        senderTextView.setText("ME");
-    }
+
 }
 

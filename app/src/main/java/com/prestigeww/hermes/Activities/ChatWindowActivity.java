@@ -122,8 +122,15 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot messages:
                         dataSnapshot.getChildren()){
-                    MessageInChat tempMessage = new MessageInChat(messages.child("body").getValue().toString(),
-                            messages.child("sender").getValue().toString());
+                    MessageInChat tempMessage;
+                    if(messages.child("docId").getValue().toString().equals("no_doc")){
+                        tempMessage = new MessageInChat(messages.child("body").getValue().toString(),
+                                messages.child("sender").getValue().toString());
+                    }else{
+                        tempMessage = new MessageInChat(messages.child("body").getValue().toString(),
+                                messages.child("sender").getValue().toString(),messages.child("docId").getValue().toString());
+                    }
+
 
 
                     if(messagesList.contains(tempMessage)){
