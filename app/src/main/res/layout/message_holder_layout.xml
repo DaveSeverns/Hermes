@@ -16,7 +16,8 @@
             android:id="@+id/sender_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="sender_here" />
+            android:text="sender_here"
+            android:textColor="@color/white"/>
 
         <com.github.library.bubbleview.BubbleTextView
             android:id="@+id/body_textview"
@@ -31,7 +32,7 @@
             app:arrowLocation="left"
             app:arrowPosition="14dp"
             app:arrowWidth="8dp"
-            app:bubbleColor="#7EC0EE" />
+            app:bubbleColor="#8A08C5" />
     </LinearLayout>
 
 </LinearLayout>
