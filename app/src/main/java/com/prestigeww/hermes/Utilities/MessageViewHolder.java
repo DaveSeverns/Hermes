@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.github.library.bubbleview.BubbleTextView;
 import com.prestigeww.hermes.Model.MessageInChat;
 import com.prestigeww.hermes.R;
 
@@ -14,7 +15,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     public MessageViewHolder(View itemView) {
         super(itemView);
         senderTextView = itemView.findViewById(R.id.sender_textview);
-        bodyTextView = itemView.findViewById(R.id.body_textview);
+        bodyTextView = (BubbleTextView) itemView.findViewById(R.id.body_textview);
 
     }
 

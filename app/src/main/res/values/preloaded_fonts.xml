@@ -2,6 +2,7 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/asset</item>
+        <item>@font/bangers</item>
         <item>@font/henny_penny</item>
         <item>@font/ovo</item>
     </array>

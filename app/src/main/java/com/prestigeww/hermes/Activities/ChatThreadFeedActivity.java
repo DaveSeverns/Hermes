@@ -42,7 +42,7 @@ import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
-import com.prestigeww.hermes.Utilities.NfcUtility;
+
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
@@ -54,7 +54,6 @@ import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 
 public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface, ThreadListAdapter.ThreadClickInterface {
-
 
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
@@ -68,7 +67,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser currentAuthUser;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +136,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         mFirebaseAuth.addAuthStateListener(mAuthListener);
         threadListAdapter.notifyDataSetChanged();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility(this).enterChat("",new ArrayList<>());
             String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                     .getString("UserID", null);
             ArrayList<String> ids = dbHelper.getAllChatmember();
@@ -154,10 +151,11 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 Log.e("NFC recieved", "already a member");
             } else {
                 ids.add(chatID);
-                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
-                new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
+                firebaseProxy.postChatIDInUserToFirebase(ids, currentAuthUser.getUid());
+                dbHelper.insertChatmember(chatID);
                 Log.e("NFC recieved", chatID);
-                Intent badIntent = new Intent(ChatThreadFeedActivity.this,ChatThreadFeedActivity.class);
+                Intent badIntent = new Intent(ChatThreadFeedActivity.this,ChatWindowActivity.class);
+                badIntent.putExtra("chat_id",chatID);
                 startActivity(badIntent);
             }
         }
@@ -166,8 +164,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
         threadListAdapter.notifyDataSetChanged();
     }
-
-
 
     protected void addChatAlert() {
 
@@ -225,11 +221,9 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
 
-
     @Override
     public void onBackPressed() {
     }
-
 
     public void getChatsById() {
         final ArrayList<ChatThread> usersThreads = new ArrayList<ChatThread>();
@@ -264,7 +258,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     }
 
     @Override
-    public void windowIntent(String chatId, String chatName) {
+    public void windowIntent(String chatId,String chatName) {
         Intent chatWindowIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
         chatWindowIntent.putExtra("chat_id", chatId);
         chatWindowIntent.putExtra("chatName", chatName);
