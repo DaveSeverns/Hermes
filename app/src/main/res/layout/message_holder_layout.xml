@@ -16,32 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/sender_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="sender_here" />
         <TextView
             android:id="@+id/sender_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="sender_here"
             android:textColor="@color/white"/>
-
-            <com.github.library.bubbleview.BubbleTextView
-                android:id="@+id/body_textview"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="How will this work properly  BubbleTextVew"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                app:angle="8dp"
-                app:arrowHeight="10dp"
-                app:arrowLocation="left"
-                app:arrowPosition="14dp"
-                app:arrowWidth="8dp"
-                app:bubbleColor="#7EC0EE" />
 
             <com.github.library.bubbleview.BubbleImageView
                 android:id="@+id/image_bubble"
