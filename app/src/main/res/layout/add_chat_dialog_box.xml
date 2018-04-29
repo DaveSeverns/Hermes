@@ -16,7 +16,8 @@
         android:textAlignment="center"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"/>
 
     <EditText
         android:id="@+id/first_message_edit_text"
@@ -31,5 +32,6 @@
         android:hint="What have you got to say.."
         android:inputType="textPersonName"
         android:textSize="24sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"/>
 </FrameLayout>
