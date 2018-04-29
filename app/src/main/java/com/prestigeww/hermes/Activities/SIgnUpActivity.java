@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.prestigeww.hermes.Model.ChatThread;
@@ -82,7 +83,7 @@ public class SIgnUpActivity extends AppCompatActivity {
                         if(!isUpdate && !updateProfile) {
 
                             addNewUser(emailEditText.getText().toString()
-                                    , passwordEditText.getText().toString());
+                                    , passwordEditText.getText().toString(), nameEditText.getText().toString());
 
                         }else if(updateProfile){
 
@@ -129,7 +130,7 @@ public class SIgnUpActivity extends AppCompatActivity {
                   !emailEditText.getText().toString().equals("");
     }//end check for empty
 
-    public void addNewUser(String email,String password){
+    public void addNewUser(String email,String password, String userName){
         if(hermesUtiltity.isValidEmail(email)){
                         if (hermesUtiltity.isValidPassword(password)){
                             final RegisteredUser registeredUser = new RegisteredUser(nameEditText.getText().toString(), emailEditText.getText().toString()
@@ -139,7 +140,11 @@ public class SIgnUpActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
                                         Intent intent = new Intent(SIgnUpActivity.this, LoginActivity.class);
-                                        String uid=mAuth.getCurrentUser().getUid();
+                                        FirebaseUser mUser = mAuth.getCurrentUser();
+                                        String uid= mUser.getUid();
+                                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(userName).build();
+                                        mUser.updateProfile(profileChangeRequest);
                                         userid = new FirebaseProxy(SIgnUpActivity.this).postRegisteredUserToFirebase(registeredUser,uid);
                                         getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                                 .edit().putString("UserType", "Registered").commit();
