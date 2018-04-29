@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.graphics.Color;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.github.library.bubbleview.BubbleDrawable;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -81,6 +83,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     Button sendButton;
     EditText messageEditText;
 
+    BubbleDrawable bubbleDrawable;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +103,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageListAdapter = new MessageListAdapter(messagesList, this);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
+
 
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
@@ -121,6 +127,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                     if(messagesList.contains(tempMessage)){
                         return;
                     }else{
+
+                        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
                         messagesList.add(tempMessage);
                         messageListAdapter.notifyDataSetChanged();
                         messageRecycler.scrollToPosition(messagesList.size() -1);
@@ -157,6 +166,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
+                messageEditText.setText("");
+
                 //messagesList.add(messageInChat);
                 //messageListAdapter.notifyDataSetChanged();
 

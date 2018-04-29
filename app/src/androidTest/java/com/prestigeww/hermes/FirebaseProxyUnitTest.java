@@ -127,7 +127,7 @@ public class FirebaseProxyUnitTest extends TestCase {
 
     @Test
     public void ShouldPossibly_postRegisteredUserToFirebase(){
-        assertNotNull(proxy.postRegisteredUserToFirebase(registeredUser));
+        assertNotNull(proxy.postRegisteredUserToFirebase(registeredUser, "123456"));
     }//
 
     @Test
