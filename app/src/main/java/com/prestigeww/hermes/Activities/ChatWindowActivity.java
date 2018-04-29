@@ -100,7 +100,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             finish();
             return;
         }
-        messageListAdapter = new MessageListAdapter(messagesList);
+        messageListAdapter = new MessageListAdapter(messagesList, this);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
 
