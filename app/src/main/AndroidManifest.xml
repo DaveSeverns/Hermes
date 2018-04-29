@@ -23,7 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SIgnUpActivity" />
-        <activity android:name=".Activities.ChatThreadFeedActivity">
+        <activity android:name=".Activities.ChatThreadFeedActivity"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
