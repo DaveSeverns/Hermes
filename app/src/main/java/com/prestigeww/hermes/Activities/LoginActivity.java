@@ -152,21 +152,21 @@ public class LoginActivity extends AppCompatActivity {
                             cids.add(c);
 
                         }
-                        String em;
-                        if(dataSnapshot.child("isRegistered").getValue().equals(true)) {
-                            em = dataSnapshot.child("email").getValue().toString();
-                        }else{
-                            em="Default@hermes.com";
-                        }
+                       // String em;
+                       // if(dataSnapshot.child("isRegistered").getValue().equals(true)) {
+                       //     em = dataSnapshot.child("email").getValue().toString();
+                       // }else{
+                       //     em="Default@hermes.com";
+                       // }
                         String uname = dataSnapshot.child("username").getValue().toString();
                         Log.e("DaTA snap um",uname);
-                        Log.e("DaTA snap em",em);
+                        //Log.e("DaTA snap em",em);
                         LocalDbHelper lb=new LocalDbHelper(LoginActivity.this);
                         lb.dropTables();
                         lb.insertChatmember(cids);
                         getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                                 .edit().putString("UserName", uname).commit();
-                        lb.insertUser(mAuth.getCurrentUser().getUid(),uname,em);
+                        //lb.insertUser(mAuth.getCurrentUser().getUid(),uname,em);
                     }
 
 

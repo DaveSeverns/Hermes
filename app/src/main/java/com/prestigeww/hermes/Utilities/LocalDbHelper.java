@@ -101,7 +101,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         for(int i=0;i<ids.size();i++){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(CHATMEMBER_COLUMN_CHATID, ids.get(0));
+        contentValues.put(CHATMEMBER_COLUMN_CHATID, ids.get(i));
         db.insert(CHATMEMBER_TABLE_NAME, null, contentValues);
         }
         return true;
