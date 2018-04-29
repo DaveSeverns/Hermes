@@ -1,6 +1,10 @@
 package com.prestigeww.hermes.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -23,6 +27,9 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.github.library.bubbleview.BubbleTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +38,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.prestigeww.hermes.Adapters.MessageListAdapter;
 import com.prestigeww.hermes.Model.ChatThread;
 import com.prestigeww.hermes.Model.MessageInChat;
@@ -40,6 +50,9 @@ import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
 import com.prestigeww.hermes.Utilities.MessageViewHolder;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +77,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     List<MessageInChat> messagesList = new ArrayList<>();
     private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecycler;
-
+    private FirebaseUser currentUser;
     Button sendButton;
     EditText messageEditText;
 
@@ -75,7 +88,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
         sendButton = (Button) findViewById(R.id.sendButton);
         messageEditText = (EditText) findViewById(R.id.editTextSendMessage);
-
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
@@ -135,17 +148,24 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                     email = "defaultUser";
                 }
 
-                //Log.d("sender", sender);
+                Log.d("sender", sender);
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
                 MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), email);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();
-                messageEditText.setText("");
                 //messagesList.add(messageInChat);
                 //messageListAdapter.notifyDataSetChanged();
 
+            }
+        });
+
+        sendButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                openGalleryForResult();
+                return true;
             }
         });
 
@@ -206,6 +226,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
+
+
         }
     }
 
@@ -246,5 +268,51 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     protected void onResume() {
         super.onResume();
         //firebaseRecyclerAdapter.notifyDataSetChanged();
+    }
+
+    public void openGalleryForResult(){
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent,42069);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 42069 && resultCode == Activity.RESULT_OK){
+            try{
+                Uri targetUri = data.getData();
+                InputStream inputStream = getContentResolver().openInputStream(targetUri);
+                Bitmap imageBitmap = BitmapFactory.decodeStream(inputStream);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                imageBitmap.compress((Bitmap.CompressFormat.JPEG),50,byteArrayOutputStream);
+                StorageReference storage = FirebaseStorage.getInstance().getReference().child(System.currentTimeMillis()+"");
+                storage.child(System.currentTimeMillis()+"");
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+                storage.putBytes(bytes).addOnSuccessListener(taskSnapshot -> {
+                    String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                    mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
+                    MessageInChat messageInChat = new MessageInChat("", currentUser.getEmail(),downloadUrl);
+                    mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
+
+                    messagesList.clear();
+                    Log.e("Url: ", downloadUrl);
+
+                }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        Toast.makeText(ChatWindowActivity.this,"UPLOADED",Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(ChatWindowActivity.this,"NOT UPLOADED",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }catch (FileNotFoundException fEx){
+                fEx.printStackTrace();
+            }
+
+        }
     }
 }
