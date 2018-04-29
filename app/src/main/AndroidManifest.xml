@@ -10,9 +10,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/hermes_logo"
+        android:icon="@drawable/hermes2"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/hermes_logo"
+        android:roundIcon="@drawable/hermes_logo_new"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Activities.LoginActivity">
