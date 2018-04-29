@@ -120,12 +120,14 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
                     if(messagesList.contains(tempMessage)){
                         return;
+                    }else{
+                        messagesList.add(tempMessage);
+                        messageListAdapter.notifyDataSetChanged();
+                        messageRecycler.scrollToPosition(messagesList.size() -1);
+                        Log.e("Value ", messages.child("body").getValue().toString());
                     }
 
-                    messagesList.add(tempMessage);
-                    messageListAdapter.notifyDataSetChanged();
-                    messageRecycler.scrollToPosition(messagesList.size() -1);
-                    Log.e("Value ", messages.child("body").getValue().toString());
+
                 }
 
             }
