@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="How will this work properly  BubbleTextVew"
+            android:text="BubbleTextVew"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             app:angle="8dp"

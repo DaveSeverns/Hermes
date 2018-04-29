@@ -12,7 +12,6 @@ import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.MessageViewHolder;
 
 import java.util.List;
-
 public class MessageListAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
     List<MessageInChat> messages;

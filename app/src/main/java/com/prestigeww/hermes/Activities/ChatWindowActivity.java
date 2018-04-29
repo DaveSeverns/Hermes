@@ -1,6 +1,7 @@
 package com.prestigeww.hermes.Activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.github.library.bubbleview.BubbleDrawable;
 import com.github.library.bubbleview.BubbleTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -68,6 +70,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     Button sendButton;
     EditText messageEditText;
 
+    BubbleDrawable bubbleDrawable;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +90,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageListAdapter = new MessageListAdapter(messagesList);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
+
 
         firebaseProxy = new FirebaseProxy(this);
         mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE);
@@ -108,6 +114,8 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                     if(messagesList.contains(tempMessage)){
                         return;
                     }
+
+                    String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
                     messagesList.add(tempMessage);
                     messageListAdapter.notifyDataSetChanged();
@@ -143,6 +151,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
 
                 messagesList.clear();
                 messageEditText.setText("");
+
                 //messagesList.add(messageInChat);
                 //messageListAdapter.notifyDataSetChanged();
 
