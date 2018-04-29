@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.prestigeww.hermes.Model.DefaultUser;
 import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
@@ -56,6 +58,14 @@ public class DefaultUserSignUp extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@android.support.annotation.NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        String userName = defaultuser.getText().toString();
+                                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(userName).build();
+                                        if(user != null){
+                                            user.updateProfile(profileChangeRequest);
+                                        }
+
                                         DefaultUser d=new DefaultUser();
                                         Intent intent = new Intent(DefaultUserSignUp.this, LoginActivity.class);
                                         if (defaultuser.getText().toString().equals("")) {

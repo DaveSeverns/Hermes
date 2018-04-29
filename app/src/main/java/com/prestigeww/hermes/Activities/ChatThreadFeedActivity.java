@@ -42,7 +42,7 @@ import com.prestigeww.hermes.R;
 import com.prestigeww.hermes.Utilities.FirebaseProxy;
 import com.prestigeww.hermes.Utilities.HermesConstants;
 import com.prestigeww.hermes.Utilities.LocalDbHelper;
-import com.prestigeww.hermes.Utilities.NfcUtility;
+
 import com.prestigeww.hermes.Utilities.ThreadViewHolder;
 
 import java.util.ArrayList;
@@ -136,7 +136,6 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
         mFirebaseAuth.addAuthStateListener(mAuthListener);
         threadListAdapter.notifyDataSetChanged();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            new NfcUtility(this).enterChat("",new ArrayList<>());
             String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                     .getString("UserID", null);
             ArrayList<String> ids = dbHelper.getAllChatmember();
@@ -152,10 +151,11 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
                 Log.e("NFC recieved", "already a member");
             } else {
                 ids.add(chatID);
-                new FirebaseProxy(this).postChatIDInUserToFirebase(ids, userid);
-                new LocalDbHelper(ChatThreadFeedActivity.this).insertChatmember(chatID);
+                firebaseProxy.postChatIDInUserToFirebase(ids, currentAuthUser.getUid());
+                dbHelper.insertChatmember(chatID);
                 Log.e("NFC recieved", chatID);
-                Intent badIntent = new Intent(ChatThreadFeedActivity.this,ChatThreadFeedActivity.class);
+                Intent badIntent = new Intent(ChatThreadFeedActivity.this,ChatWindowActivity.class);
+                badIntent.putExtra("chat_id",chatID);
                 startActivity(badIntent);
             }
         }

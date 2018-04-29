@@ -59,6 +59,7 @@ public class FirebaseProxyUnitTest extends TestCase {
     private ChatThread testThread,
             testThread2;
     ArrayList<String> chatIdsTest;
+    private Context context;
     private Context mockContext;
     private Context context2;
     public FirebaseApp firebaseApp;
@@ -78,6 +79,9 @@ public class FirebaseProxyUnitTest extends TestCase {
         chatIdsTest = new ArrayList<String>();
         chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
         proxy = new FirebaseProxy(mockContext);
+        chatIdsTest.add("-LAiA-q-_6YBbTiGTwaS");
+        context= InstrumentationRegistry.getContext();
+        proxy = new FirebaseProxy(context);
         testThread = new ChatThread();
         testThread2 = new ChatThread();
         defaultUser = new DefaultUser(true, "bobby");
