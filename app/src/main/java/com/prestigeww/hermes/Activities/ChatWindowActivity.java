@@ -95,7 +95,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             finish();
             return;
         }
-        messageListAdapter = new MessageListAdapter(messagesList);
+        messageListAdapter = new MessageListAdapter(messagesList, this);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
 
@@ -153,7 +153,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
                 Log.d("sender", sender);
 
                 mChatThreadRef = firebaseProxy.mDatabaseReference.child(HermesConstants.THREAD_TABLE).child(CID).child(HermesConstants.MESSAGES_TABLE);
-                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), email);
+                MessageInChat messageInChat = new MessageInChat(messageEditText.getText().toString(), sender);
                 mChatThreadRef.child("" + System.currentTimeMillis()).setValue(messageInChat);
 
                 messagesList.clear();

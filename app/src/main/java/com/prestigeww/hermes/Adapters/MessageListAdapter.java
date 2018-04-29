@@ -1,5 +1,6 @@
 package com.prestigeww.hermes.Adapters;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,9 +17,11 @@ import java.util.List;
 public class MessageListAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
     List<MessageInChat> messages;
+    Context mContext;
 
-    public MessageListAdapter(List<MessageInChat> messages){
+    public MessageListAdapter(List<MessageInChat> messages, Context context){
         this.messages = messages;
+        mContext = context;
     }
 
 
@@ -32,7 +35,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        holder.bindView(messages.get(position));
+        holder.bindView(mContext,messages.get(position));
     }
 
     @Override
