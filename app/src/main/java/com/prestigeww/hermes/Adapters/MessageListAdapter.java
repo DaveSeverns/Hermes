@@ -17,10 +17,12 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageViewHolder> 
 
     List<MessageInChat> messages;
     Context mContext;
+    String sender;
 
-    public MessageListAdapter(List<MessageInChat> messages, Context context){
+    public MessageListAdapter(List<MessageInChat> messages, Context context, String sender){
         this.messages = messages;
         mContext = context;
+        this.sender = sender;
     }
 
 
@@ -34,7 +36,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        holder.bindView(mContext,messages.get(position));
+        holder.bindView(mContext,messages.get(position), sender);
     }
 
     @Override
