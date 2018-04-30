@@ -18,9 +18,10 @@ import com.squareup.picasso.Picasso;
 public class MessageViewHolder extends RecyclerView.ViewHolder {
     private TextView senderTextView;
     private TextView bodyTextView;
+    private TextView myBodyTextView;
 
     String sender;
-    String email;
+    //String email;
 
     private ImageView bubbleImage;
     public MessageViewHolder(View itemView) {
@@ -28,13 +29,14 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         senderTextView = itemView.findViewById(R.id.sender_textview);
         bodyTextView = (BubbleTextView) itemView.findViewById(R.id.body_textview);
+        myBodyTextView  = (BubbleTextView) itemView.findViewById(R.id.body_text_me);
         bubbleImage =  itemView.findViewById(R.id.image_sent);
 
-        email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        //email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
     }
 
-    public void bindView(Context context, MessageInChat message) {
+    public void bindView(Context context, MessageInChat message, String appSender) {
         sender = message.getSender();
 
         if (!message.getDocId().equals("no_doc")) {
@@ -42,7 +44,14 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
                 Picasso.with(context.getApplicationContext()).load(message.getDocId()).into(bubbleImage);
                 bodyTextView.setVisibility(View.GONE);
         }else{
-            bodyTextView.setText(message.getBody());
+            if(appSender.equals(sender)){
+                myBodyTextView.setText(message.getBody());
+                myBodyTextView.setVisibility(View.VISIBLE);
+                bodyTextView.setVisibility(View.GONE);
+            }else {
+                bodyTextView.setText(message.getBody());
+            }
+
         }
 
         senderTextView.setText(message.getSender());
