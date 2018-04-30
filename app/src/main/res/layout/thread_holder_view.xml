@@ -7,7 +7,7 @@
     android:layout_margin="4dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
-    android:background="@color/chatHolderBackGround"
+    android:background="#212121"
     android:padding="8dp">
 
     <LinearLayout
@@ -17,6 +17,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="#212121"
         android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
