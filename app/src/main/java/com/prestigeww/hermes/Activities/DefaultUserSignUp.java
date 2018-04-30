@@ -38,8 +38,12 @@ public class DefaultUserSignUp extends AppCompatActivity {
     FirebaseAuth mAuth;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.default_user);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         FirebaseApp.initializeApp(getApplicationContext());
@@ -99,4 +103,11 @@ public class DefaultUserSignUp extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
+    }
+
 }

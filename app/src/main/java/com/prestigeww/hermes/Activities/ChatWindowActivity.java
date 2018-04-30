@@ -91,6 +91,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.activity_chat_window);
 
         sendButton = (Button) findViewById(R.id.sendButton);
@@ -122,6 +125,7 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                messagesList.clear();
                 for(DataSnapshot messages:
                         dataSnapshot.getChildren()){
                     MessageInChat tempMessage;
@@ -329,5 +333,11 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent backIntent = new Intent(ChatWindowActivity.this, ChatThreadFeedActivity.class);
+        startActivity(backIntent);
     }
 }

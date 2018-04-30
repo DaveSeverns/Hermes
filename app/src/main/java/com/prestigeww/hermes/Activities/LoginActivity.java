@@ -37,6 +37,7 @@ import com.prestigeww.hermes.Utilities.HermesUtiltity;
 import com.prestigeww.hermes.Utilities.NewMessageNotification;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -52,7 +53,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.activity_login);
+
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         FirebaseApp.initializeApp(this);
@@ -76,7 +81,9 @@ public class LoginActivity extends AppCompatActivity {
             if (user != null){
                 Intent intent = new Intent(LoginActivity.this, ChatThreadFeedActivity.class);
                 getUserById();
+                intent.putExtra("message", "it worked");
                 startActivity(intent);
+                overridePendingTransition(R.anim.go_up, R.anim.go_down);
             }
         };
 
@@ -115,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, SIgnUpActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.go_up, R.anim.go_down);
             }
         });
 
@@ -123,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, DefaultUserSignUp.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
 
