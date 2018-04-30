@@ -36,7 +36,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
     public void bindView(Context context, MessageInChat message) {
         sender = message.getSender();
-        //   senderTextView.setText(message.getSender());
 
         if (!message.getDocId().equals("no_doc")) {
                 bubbleImage.setVisibility(View.VISIBLE);
@@ -47,14 +46,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         }
 
         senderTextView.setText(message.getSender());
-
-
-       // if (sender == email) {
-        //    senderTextView.setText("Me");
-        //    senderTextView.setBackgroundColor(Color.CYAN);
-        //} else {
-        //    senderTextView.setText(message.getSender());
-        //}
 
 
     }
