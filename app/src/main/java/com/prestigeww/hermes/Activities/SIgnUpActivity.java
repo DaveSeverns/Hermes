@@ -50,7 +50,15 @@ public class SIgnUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.activity_sign_up);
+
+
+
+
+
         FirebaseApp.initializeApp(getApplicationContext());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -124,6 +132,12 @@ public class SIgnUpActivity extends AppCompatActivity {
         });
     }
 
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.anim.go_down, R.anim.go_up);
+    }
+
+
     private boolean checkForEmpty(){
         return !passwordEditText.getText().toString().equals("")&&
                 !nameEditText.getText().toString().equals("")&&
@@ -187,6 +201,7 @@ public class SIgnUpActivity extends AppCompatActivity {
                     Log.d("SIgnUpActivity", "User password updated.");
                 }
             }
+
         });
     }
 }

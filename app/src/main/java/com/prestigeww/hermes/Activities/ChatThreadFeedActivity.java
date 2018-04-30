@@ -55,6 +55,7 @@ import static com.prestigeww.hermes.Utilities.HermesConstants.THREAD_TABLE;
 
 public class ChatThreadFeedActivity extends AppCompatActivity implements FirebaseProxy.FirebaseProxyInterface, ThreadListAdapter.ThreadClickInterface {
 
+    String message;
     private ArrayList<ChatThread> chatThreads;
     private FirebaseProxy firebaseProxy;
     private RecyclerView recyclerView;
@@ -71,7 +72,12 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.activity_chat_thread_feed);
+        message = getIntent().getStringExtra(message);
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
         FirebaseApp.initializeApp(getApplicationContext());
 
         firebaseProxy = new FirebaseProxy(this);
@@ -116,6 +122,7 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
             }
         });
     }
+
 
     @Override
     protected void onStart() {
@@ -232,6 +239,8 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.go_down, R.anim.go_up);
     }
 
     public void getChatsById() {

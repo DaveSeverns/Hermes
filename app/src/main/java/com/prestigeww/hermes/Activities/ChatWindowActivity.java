@@ -91,6 +91,9 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.hermes_logo_actionbar);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         setContentView(R.layout.activity_chat_window);
 
         sendButton = (Button) findViewById(R.id.sendButton);
