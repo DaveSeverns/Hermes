@@ -97,11 +97,13 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
         messageEditText = (EditText) findViewById(R.id.editTextSendMessage);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
         if (mNfcAdapter == null) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
         messageListAdapter = new MessageListAdapter(messagesList, this);
         messageRecycler = findViewById(R.id.message_recycler);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -184,18 +186,16 @@ public class ChatWindowActivity extends AppCompatActivity implements NfcAdapter.
             }
         });
 
-        mNfcAdapter.setNdefPushMessageCallback(this, this);
+
 
         messageRecycler.setAdapter(messageListAdapter);
     }
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        String cID=getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getString("UserID",null);
-        Toast.makeText(ChatWindowActivity.this,"chatID for NDEF:"+ cID,Toast.LENGTH_LONG).show();
+
         NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMime("application/edu.temple.hermes",cID.getBytes())}
+                new NdefRecord[] { createMime("application/edu.temple.hermes",CID.getBytes())}
         );
         return msg;
     }

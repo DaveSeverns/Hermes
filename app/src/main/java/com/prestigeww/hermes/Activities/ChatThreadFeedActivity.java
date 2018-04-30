@@ -127,42 +127,51 @@ public class ChatThreadFeedActivity extends AppCompatActivity implements Firebas
     @Override
     public void onNewIntent(Intent intent) {
         // onResume gets called after this to handle the intent
-        setIntent(intent);
+        super.onNewIntent(intent);
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+            handleIntent(intent);
+        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Intent resumeIntent = getIntent();
         mFirebaseAuth.addAuthStateListener(mAuthListener);
         threadListAdapter.notifyDataSetChanged();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                    .getString("UserID", null);
-            ArrayList<String> ids = dbHelper.getAllChatmember();
-            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(
-                    NfcAdapter.EXTRA_NDEF_MESSAGES);
-            // only one message sent during the beam
-            NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
-
-            // record 0 contains the MIME type, record 1 is the AAR, if present
-            String chatID = new String(msg.getRecords()[0].getPayload());
-
-            if (ids.contains(chatID)) {
-                Log.e("NFC recieved", "already a member");
-            } else {
-                ids.add(chatID);
-                firebaseProxy.postChatIDInUserToFirebase(ids, currentAuthUser.getUid());
-                dbHelper.insertChatmember(chatID);
-                Log.e("NFC recieved", chatID);
-                Intent badIntent = new Intent(ChatThreadFeedActivity.this,ChatWindowActivity.class);
-                badIntent.putExtra("chat_id",chatID);
-                startActivity(badIntent);
-            }
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(resumeIntent.getAction())) {
+            handleIntent(resumeIntent);
         }
         //firebaseRecyclerAdapter.notifyDataSetChanged();
 
 
         threadListAdapter.notifyDataSetChanged();
+    }
+
+    public void handleIntent(Intent intent){
+        String userid = ChatThreadFeedActivity.this.getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getString("UserID", null);
+        ArrayList<String> ids = dbHelper.getAllChatmember();
+        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
+                NfcAdapter.EXTRA_NDEF_MESSAGES);
+        // only one message sent during the beam
+        NdefMessage msg = (NdefMessage) rawMsgs[0];//partnername
+
+        // record 0 contains the MIME type, record 1 is the AAR, if present
+        String chatID = new String(msg.getRecords()[0].getPayload());
+
+        if (ids.contains(chatID)) {
+            Log.e("NFC recieved", "already a member");
+        } else {
+            ids.add(chatID);
+            firebaseProxy.postChatIDInUserToFirebase(ids, currentAuthUser.getUid());
+            dbHelper.insertChatmember(chatID);
+            Log.e("NFC recieved", chatID);
+            Intent badIntent = new Intent(ChatThreadFeedActivity.this, ChatWindowActivity.class);
+            badIntent.putExtra("chat_id",chatID);
+            startActivity(badIntent);
+        }
     }
 
     protected void addChatAlert() {

@@ -33,6 +33,7 @@
 
                 <data android:mimeType="application/edu.temple.hermes" />
             </intent-filter>
+
         </activity>
         <activity android:name=".Activities.ChatWindowActivity" />
 
