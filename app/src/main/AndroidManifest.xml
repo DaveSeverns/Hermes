@@ -15,15 +15,18 @@
         android:roundIcon="@drawable/hermes"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.LoginActivity">
+        <activity android:name=".Activities.LoginActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.SIgnUpActivity" />
-        <activity android:name=".Activities.ChatThreadFeedActivity">
+        <activity android:name=".Activities.SIgnUpActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activities.ChatThreadFeedActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -33,13 +36,16 @@
                 <data android:mimeType="application/edu.temple.hermes" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.ChatWindowActivity" />
+        <activity android:name=".Activities.ChatWindowActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".Activities.DefaultUserSignUp"></activity>
+        <activity android:name=".Activities.DefaultUserSignUp"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>
