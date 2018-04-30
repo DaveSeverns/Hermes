@@ -25,7 +25,6 @@
         <activity android:name=".Activities.SIgnUpActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".Activities.ChatThreadFeedActivity"
-            android:launchMode="singleInstance"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
